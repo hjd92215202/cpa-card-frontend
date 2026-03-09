@@ -4,15 +4,22 @@ export const useAppStore = defineStore('app', {
   state: () => ({
     currentSubjectId: null as number | null,
     currentSubjectName: '' as string,
-    themeColor: '#1890ff', // 动态主题色
+    currentCategoryId: null as number | null,   // 新增：当前章节ID
+    currentCategoryName: '' as string,         // 新增：当前章节名称
+    themeColor: '#1890ff',
   }),
   actions: {
     setSubject(id: number, name: string, color?: string) {
       this.currentSubjectId = id
       this.currentSubjectName = name
+      this.currentCategoryId = null // 切换科目时清空章节
       if (color) this.themeColor = color
-      // 切换主题色到 CSS 变量，供 Tailwind 使用
       document.documentElement.style.setProperty('--primary-color', color || '#1890ff')
+    },
+    // 新增：设置当前章节
+    setCategory(id: number, name: string) {
+      this.currentCategoryId = id
+      this.currentCategoryName = name
     }
   }
 })

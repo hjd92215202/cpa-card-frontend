@@ -58,6 +58,7 @@
           <h2 class="text-xl font-bold text-gray-800">{{ currentCategoryName }}</h2>
           <p class="text-xs text-gray-400 mt-1">当前章节共 {{ cards.length }} 张知识卡片</p>
         </div>
+        <el-button type="success" :icon="Postcard" @click="goToStudy">开始复习</el-button>
         <el-button type="primary" :icon="Plus" @click="openCardEditor">录入卡片</el-button>
       </header>
 
@@ -184,6 +185,8 @@ import { subjectApi, type Subject } from '../../api/subject'
 import { categoryApi, type Category } from '../../api/category'
 import { cardApi, type Card } from '../../api/card'
 import { useAppStore } from '../../store/appStore'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 const appStore = useAppStore()
 
@@ -249,6 +252,8 @@ const categoryTree = computed(() => {
 const handleNodeClick = async (data: any) => {
   currentCategoryId.value = data.id
   currentCategoryName.value = data.name
+  // 同步到 store
+  appStore.setCategory(data.id, data.name) 
   loadCards()
 }
 
@@ -256,6 +261,15 @@ const loadCards = async () => {
   if (!currentCategoryId.value) return
   const res = await cardApi.listByCategory(currentCategoryId.value)
   cards.value = res as any
+}
+
+// 新增跳转方法
+const goToStudy = () => {
+  if (cards.value.length === 0) {
+    ElMessage.warning('该章节还没有卡片，先录入一些吧')
+    return
+  }
+  router.push('/study')
 }
 
 // 学科与章节的新增逻辑
