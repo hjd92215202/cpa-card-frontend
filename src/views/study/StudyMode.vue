@@ -5,14 +5,18 @@
       <el-button :icon="ArrowLeft" circle @click="router.back()" />
       <div class="text-center">
         <h1 class="font-bold text-xl">{{ appStore.currentSubjectName || '复习模式' }}</h1>
-        <p class="text-sm text-gray-500">剩余任务: {{ cards.length - currentIndex }} / {{ cards.length }}</p>
+        <p class="text-sm text-gray-500">剩余任务: {{ cards.length > 0 ? (cards.length - currentIndex) : 0 }} / {{ cards.length }}</p>
       </div>
       <el-button :icon="Setting" circle />
     </div>
 
-    <!-- 进度条 -->
+    <!-- 进度条 - 修复 NaN 和 stroke-width 类型 -->
     <div class="w-full max-w-2xl mb-8">
-      <el-progress :percentage="progress" :show-text="false" stroke-width="8" />
+      <el-progress 
+        :percentage="isNaN(progress) ? 0 : progress" 
+        :show-text="false" 
+        :stroke-width="8" 
+      />
     </div>
 
     <!-- 卡片主体 -->
@@ -25,26 +29,20 @@
     </div>
 
     <!-- 完成态 -->
-    <div v-else-if="cards.length > 0" class="text-center py-20">
-      <el-result icon="success" title="今日复习完成" sub-title="天道酬勤，CPA必过！">
+    <div v-else-if="cards.length > 0 && currentIndex >= cards.length" class="text-center py-20">
+      <el-result icon="success" title="复习达成" sub-title="每天的积累都是通往卓越的阶梯">
         <template #extra>
           <el-button type="primary" @click="router.back()">返回知识库</el-button>
         </template>
       </el-result>
     </div>
 
-    <!-- 操作栏 (只有翻转后或常驻，建议常驻方便操作) -->
+    <!-- 操作栏 -->
     <div v-if="currentCard" class="mt-12 flex gap-6">
       <el-button-group>
-        <el-button type="danger" size="large" @click="handleReview(1)">
-          太难了 (1天后)
-        </el-button>
-        <el-button type="warning" size="large" @click="handleReview(3)">
-          模糊 (3天后)
-        </el-button>
-        <el-button type="success" size="large" @click="handleReview(7)">
-          简单 (7天后)
-        </el-button>
+        <el-button type="danger" size="large" @click="handleReview(1)">太难了 (1天后)</el-button>
+        <el-button type="warning" size="large" @click="handleReview(3)">模糊 (3天后)</el-button>
+        <el-button type="success" size="large" @click="handleReview(7)">简单 (7天后)</el-button>
       </el-button-group>
     </div>
   </div>
@@ -66,10 +64,13 @@ const currentIndex = ref(0)
 const cardRef = ref()
 
 const currentCard = computed(() => cards.value[currentIndex.value])
-const progress = computed(() => (currentIndex.value / cards.value.length) * 100)
+// 修复 NaN 计算逻辑
+const progress = computed(() => {
+  if (cards.value.length === 0) return 0;
+  return Math.round((currentIndex.value / cards.length) * 100);
+})
 
 onMounted(async () => {
-  // 如果是从首页进来，会有 currentSubjectId 但没有 currentCategoryId
   if (!appStore.currentSubjectId) {
     ElMessage.warning('请先选择科目')
     router.push('/')
@@ -79,17 +80,16 @@ onMounted(async () => {
   try {
     let res;
     if (appStore.currentCategoryId) {
-      // 模式 A：按指定章节复习
       res = await cardApi.listByCategory(appStore.currentCategoryId)
     } else {
-      // 模式 B：整个科目复习（首页点击进入）
       res = await cardApi.listBySubject(appStore.currentSubjectId)
     }
     
+    // Axios 拦截器已经处理了 .data，这里直接赋值
     cards.value = res as any
     
     if (cards.value.length === 0) {
-      ElMessage.info('暂无需要复习的卡片，快去录入吧！')
+      ElMessage.info('暂无需要复习的卡片')
       router.back()
     }
   } catch (e) {
@@ -99,14 +99,14 @@ onMounted(async () => {
 
 const handleReview = async (days: number) => {
   if (!currentCard.value?.id) return
-  
-  // 1. 调用后端接口更新复习计划
-  await cardApi.review(currentCard.value.id, days)
-  
-  // 2. 切到下一张
-  if (currentIndex.value < cards.value.length) {
-    cardRef.value?.reset() // 重置翻转状态
-    currentIndex.value++
+  try {
+    await cardApi.review(currentCard.value.id, days)
+    if (currentIndex.value < cards.value.length) {
+      cardRef.value?.reset()
+      currentIndex.value++
+    }
+  } catch (error) {
+    ElMessage.error('提交复习进度失败')
   }
 }
 </script>

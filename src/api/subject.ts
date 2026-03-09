@@ -5,6 +5,8 @@ export interface Subject {
   name: string;
   description?: string;
   theme_color?: string;
+  icon_type?: string;
+  visibility?: string;
 }
 
 export const subjectApi = {

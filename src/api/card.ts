@@ -9,6 +9,7 @@ export interface Card {
   difficulty: number;
   importance: string;
   interval_days: number;
+  card_type?: string;
   next_review_date?: string;
 }
 
