@@ -5,12 +5,14 @@
       <el-button :icon="ArrowLeft" circle @click="router.back()" />
       <div class="text-center">
         <h1 class="font-bold text-xl">{{ appStore.currentSubjectName || '复习模式' }}</h1>
-        <p class="text-sm text-gray-500">剩余任务: {{ cards.length > 0 ? (cards.length - currentIndex) : 0 }} / {{ cards.length }}</p>
+        <p class="text-sm text-gray-500">
+          剩余任务: {{ cards.length > 0 ? (cards.length - currentIndex) : 0 }} / {{ cards.length }}
+        </p>
       </div>
       <el-button :icon="Setting" circle />
     </div>
 
-    <!-- 进度条 - 修复 NaN 和 stroke-width 类型 -->
+    <!-- 进度条 - 修复 NaN 和类型 -->
     <div class="w-full max-w-2xl mb-8">
       <el-progress 
         :percentage="isNaN(progress) ? 0 : progress" 
@@ -64,10 +66,11 @@ const currentIndex = ref(0)
 const cardRef = ref()
 
 const currentCard = computed(() => cards.value[currentIndex.value])
-// 修复 NaN 计算逻辑
+
+// 修复点 1: 在 script 逻辑中使用 cards.value.length
 const progress = computed(() => {
-  if (cards.value.length === 0) return 0;
-  return Math.round((currentIndex.value / cards.length) * 100);
+  if (cards.value.length === 0) return 0
+  return Math.round((currentIndex.value / cards.value.length) * 100)
 })
 
 onMounted(async () => {
@@ -85,8 +88,8 @@ onMounted(async () => {
       res = await cardApi.listBySubject(appStore.currentSubjectId)
     }
     
-    // Axios 拦截器已经处理了 .data，这里直接赋值
-    cards.value = res as any
+    // 修复点 2: 显式断言或确保 res 类型正确
+    cards.value = res as unknown as Card[]
     
     if (cards.value.length === 0) {
       ElMessage.info('暂无需要复习的卡片')
@@ -99,14 +102,17 @@ onMounted(async () => {
 
 const handleReview = async (days: number) => {
   if (!currentCard.value?.id) return
+  
   try {
     await cardApi.review(currentCard.value.id, days)
+    
+    // 修复点 3: 逻辑判断使用 .value
     if (currentIndex.value < cards.value.length) {
       cardRef.value?.reset()
       currentIndex.value++
     }
   } catch (error) {
-    ElMessage.error('提交复习进度失败')
+    ElMessage.error('提交进度失败')
   }
 }
 </script>
