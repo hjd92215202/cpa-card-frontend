@@ -1,12 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import Home from '../views/Home.vue'; // 新建首页
 import KnowledgeBase from '../views/admin/KnowledgeBase.vue';
+import StudyMode from '../views/study/StudyMode.vue';
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
             path: '/',
-            redirect: '/admin/kb'
+            name: 'Home',
+            component: Home
         },
         {
             path: '/admin/kb',
@@ -16,7 +19,7 @@ const router = createRouter({
         {
             path: '/study',
             name: 'Study',
-            component: () => import('../views/study/StudyMode.vue')
+            component: StudyMode
         }
     ]
 });

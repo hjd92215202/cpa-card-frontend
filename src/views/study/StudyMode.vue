@@ -69,20 +69,31 @@ const currentCard = computed(() => cards.value[currentIndex.value])
 const progress = computed(() => (currentIndex.value / cards.value.length) * 100)
 
 onMounted(async () => {
-  // 检查是否有选中的章节
-  if (!appStore.currentCategoryId) {
-    ElMessage.warning('请先选择一个章节再开始复习')
-    router.push('/admin/kb')
+  // 如果是从首页进来，会有 currentSubjectId 但没有 currentCategoryId
+  if (!appStore.currentSubjectId) {
+    ElMessage.warning('请先选择科目')
+    router.push('/')
     return
   }
-  
-  // 动态加载当前章节的卡片
-  const res = await cardApi.listByCategory(appStore.currentCategoryId)
-  cards.value = res as any
-  
-  if (cards.value.length === 0) {
-    ElMessage.info('该章节暂无卡片')
-    router.back()
+
+  try {
+    let res;
+    if (appStore.currentCategoryId) {
+      // 模式 A：按指定章节复习
+      res = await cardApi.listByCategory(appStore.currentCategoryId)
+    } else {
+      // 模式 B：整个科目复习（首页点击进入）
+      res = await cardApi.listBySubject(appStore.currentSubjectId)
+    }
+    
+    cards.value = res as any
+    
+    if (cards.value.length === 0) {
+      ElMessage.info('暂无需要复习的卡片，快去录入吧！')
+      router.back()
+    }
+  } catch (e) {
+    console.error('加载卡片失败', e)
   }
 })
 

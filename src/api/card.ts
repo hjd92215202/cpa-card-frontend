@@ -16,6 +16,10 @@ export const cardApi = {
   // 1. 获取章节下的卡片
   listByCategory: (catId: number) => 
     api.get<Card[]>(`/cards?category_id=${catId}`),
+
+  // 新增：按科目获取卡片
+  listBySubject: (subjectId: number) => 
+    api.get<Card[]>(`/cards/by_subject?subject_id=${subjectId}`),
     
   // 2. 创建卡片
   create: (data: Partial<Card>) => 
