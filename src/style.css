@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* 这里可以写你的全局样式 */
+:root {
+  --el-color-primary: #1890ff;
+}

@@ -1,0 +1,552 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+index.html
+package.json
+public/vite.svg
+README.md
+src/api/category.ts
+src/api/index.ts
+src/api/subject.ts
+src/App.vue
+src/assets/vue.svg
+src/main.ts
+src/router/index.ts
+src/store/appStore.ts
+src/style.css
+src/views/admin/KnowledgeBase.vue
+tsconfig.app.json
+tsconfig.json
+tsconfig.node.json
+vite.config.ts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+</file>
+
+<file path="index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cpa-card-frontend</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+</file>
+
+<file path="package.json">
+{
+  "name": "cpa-card-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
+    "@tailwindcss/vite": "^4.2.1",
+    "axios": "^1.13.6",
+    "element-plus": "^2.13.5",
+    "lucide-vue-next": "^0.577.0",
+    "md-editor-v3": "^6.4.0",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.25",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@vitejs/plugin-vue": "^6.0.2",
+    "@vue/tsconfig": "^0.8.1",
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.1",
+    "vue-tsc": "^3.1.5"
+  }
+}
+</file>
+
+<file path="public/vite.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+</file>
+
+<file path="README.md">
+# Vue 3 + TypeScript + Vite
+
+This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+
+Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+</file>
+
+<file path="src/api/category.ts">
+import api from './index'
+
+export interface Category {
+  id: number;
+  subject_id: number;
+  parent_id?: number | null;
+  name: string;
+  sort_order: number;
+}
+
+export const categoryApi = {
+  listBySubject: (subjectId: number) => 
+    api.get<Category[]>(`/categories?subject_id=${subjectId}`),
+  create: (data: Partial<Category>) => api.post<Category>('/categories', data),
+}
+</file>
+
+<file path="src/api/index.ts">
+import axios from 'axios';
+import { ElMessage } from 'element-plus';
+
+const api = axios.create({
+  // Rust 后端地址
+  baseURL: 'http://localhost:3000/api',
+  timeout: 5000,
+});
+
+// 响应拦截器：统一处理错误提示
+api.interceptors.response.use(
+  (response) => {
+    // 直接返回数据部分
+    return response.data;
+  },
+  (error) => {
+    const message = error.response?.data?.error || '请求失败';
+    ElMessage.error(message);
+    return Promise.reject(error);
+  }
+);
+
+export default api;
+</file>
+
+<file path="src/api/subject.ts">
+import api from './index'
+
+export interface Subject {
+  id: number;
+  name: string;
+  description?: string;
+  theme_color?: string;
+}
+
+export const subjectApi = {
+  list: () => api.get<Subject[]>('/subjects'),
+  create: (data: Partial<Subject>) => api.post<Subject>('/subjects', data),
+}
+</file>
+
+<file path="src/App.vue">
+<template>
+  <el-config-provider>
+    <!-- 路由出口 -->
+    <router-view />
+  </el-config-provider>
+</template>
+
+<script setup lang="ts">
+import { ElConfigProvider } from 'element-plus'
+</script>
+
+<style>
+/* 全局基础样式 */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+</style>
+</file>
+
+<file path="src/assets/vue.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="37.07" height="36" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 198"><path fill="#41B883" d="M204.8 0H256L128 220.8L0 0h97.92L128 51.2L157.44 0h47.36Z"></path><path fill="#41B883" d="m0 0l128 220.8L256 0h-51.2L128 132.48L50.56 0H0Z"></path><path fill="#35495E" d="M50.56 0L128 133.12L204.8 0h-47.36L128 51.2L97.92 0H50.56Z"></path></svg>
+</file>
+
+<file path="src/main.ts">
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+import './style.css' // 里面有 @import "tailwindcss"
+import App from './App.vue'
+import router from './router' // 稍后创建
+
+const app = createApp(App)
+app.use(createPinia())
+app.use(ElementPlus)
+app.use(router)
+app.mount('#app')
+</file>
+
+<file path="src/router/index.ts">
+import { createRouter, createWebHistory } from 'vue-router';
+import KnowledgeBase from '../views/admin/KnowledgeBase.vue';
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    {
+      path: '/',
+      redirect: '/admin/kb'
+    },
+    {
+      path: '/admin/kb',
+      name: 'KnowledgeBase',
+      component: KnowledgeBase
+    },
+    // 后续增加复习页面
+    // { path: '/study', component: () => import('../views/study/StudyView.vue') }
+  ]
+});
+
+export default router;
+</file>
+
+<file path="src/store/appStore.ts">
+import { defineStore } from 'pinia'
+
+export const useAppStore = defineStore('app', {
+  state: () => ({
+    currentSubjectId: null as number | null,
+    currentSubjectName: '' as string,
+    themeColor: '#1890ff', // 动态主题色
+  }),
+  actions: {
+    setSubject(id: number, name: string, color?: string) {
+      this.currentSubjectId = id
+      this.currentSubjectName = name
+      if (color) this.themeColor = color
+      // 切换主题色到 CSS 变量，供 Tailwind 使用
+      document.documentElement.style.setProperty('--primary-color', color || '#1890ff')
+    }
+  }
+})
+</file>
+
+<file path="src/style.css">
+@import "tailwindcss";
+
+/* 这里可以写你的全局样式 */
+:root {
+  --el-color-primary: #1890ff;
+}
+</file>
+
+<file path="src/views/admin/KnowledgeBase.vue">
+<template>
+  <div class="flex h-screen bg-gray-100">
+    <!-- 1. 左侧学科选择 -->
+    <div class="w-64 bg-white border-r flex flex-col">
+      <div class="p-4 font-bold text-lg border-b flex justify-between items-center">
+        <span>CPA 科目</span>
+        <el-button :icon="Plus" circle size="small" @click="showAddSubject = true" />
+      </div>
+      <div class="flex-1 overflow-y-auto">
+        <div 
+          v-for="sub in subjects" :key="sub.id"
+          @click="selectSubject(sub)"
+          :class="['p-4 cursor-pointer hover:bg-blue-50 transition-colors border-l-4', 
+                    appStore.currentSubjectId === sub.id ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-transparent']"
+        >
+          {{ sub.name }}
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 右侧章节树 -->
+    <div class="flex-1 flex flex-col p-8 overflow-y-auto">
+      <div v-if="appStore.currentSubjectId" class="max-w-4xl">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">{{ appStore.currentSubjectName }} - 章节大纲</h2>
+          <el-button type="primary" @click="prepareAddCategory(null)">添加根章节</el-button>
+        </div>
+
+        <el-card shadow="never">
+          <el-tree
+            :data="categoryTree"
+            node-key="id"
+            default-expand-all
+            :expand-on-click-node="false"
+          >
+            <template #default="{ node, data }">
+              <div class="flex-1 flex items-center justify-between pr-4">
+                <span>{{ data.name }}</span>
+                <span>
+                  <el-button link type="primary" @click="prepareAddCategory(data.id)">添加子项</el-button>
+                  <el-button link type="danger">删除</el-button>
+                </span>
+              </div>
+            </template>
+          </el-tree>
+        </el-card>
+      </div>
+      
+      <div v-else class="flex-1 flex flex-col items-center justify-center text-gray-400">
+        <el-icon :size="64"><Notebook /></el-icon>
+        <p class="mt-4">请在左侧选择一个科目开始</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加学科弹窗 -->
+  <el-dialog v-model="showAddSubject" title="新增 CPA 科目" width="400px">
+    <el-form :model="subjectForm" label-position="top">
+      <el-form-item label="科目名称">
+        <el-input v-model="subjectForm.name" placeholder="如：会计" />
+      </el-form-item>
+      <el-form-item label="描述">
+        <el-input v-model="subjectForm.description" type="textarea" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="showAddSubject = false">取消</el-button>
+      <el-button type="primary" @click="handleAddSubject">确定</el-button>
+    </template>
+  </el-dialog>
+
+  <!-- 添加章节弹窗 -->
+  <el-dialog v-model="showAddCategory" title="新增章节" width="400px">
+    <el-form :model="categoryForm" label-position="top">
+      <el-form-item label="章节名称">
+        <el-input v-model="categoryForm.name" placeholder="如：第一章 长期股权投资" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="showAddCategory = false">取消</el-button>
+      <el-button type="primary" @click="handleAddCategory">确定</el-button>
+    </template>
+  </el-dialog>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
+import { Plus, Notebook } from '@element-plus/icons-vue'
+import { subjectApi, type Subject } from '../../api/subject'
+import { categoryApi, type Category } from '../../api/category'
+import { useAppStore } from '../../store/appStore'
+import { ElMessage } from 'element-plus'
+
+
+const appStore = useAppStore()
+const subjects = ref<Subject[]>([])
+const categories = ref<Category[]>([])
+const showAddSubject = ref(false)
+const showAddCategory = ref(false)
+const subjectForm = ref({ name: '', description: '', theme_color: '#1890ff' })
+const categoryForm = ref({ name: '', parent_id: null as number | null })
+
+// 加载学科
+const loadSubjects = async () => {
+  const res = await subjectApi.list()
+  subjects.value = res as any
+}
+
+// 选择学科并加载章节
+const selectSubject = async (sub: Subject) => {
+  appStore.setSubject(sub.id, sub.name, sub.theme_color)
+  const res = await categoryApi.listBySubject(sub.id)
+  categories.value = res as any
+}
+
+// 将扁平的章节数据转换为树结构
+const categoryTree = computed(() => {
+  const map: any = {}
+  const tree: any[] = []
+  categories.value.forEach(cat => map[cat.id] = { ...cat, children: [] })
+  categories.value.forEach(cat => {
+    if (cat.parent_id) {
+      map[cat.parent_id]?.children.push(map[cat.id])
+    } else {
+      tree.push(map[cat.id])
+    }
+  })
+  return tree
+})
+
+// 新增学科
+const handleAddSubject = async () => {
+  if (!subjectForm.value.name) return
+  await subjectApi.create(subjectForm.value)
+  ElMessage.success('学科创建成功')
+  showAddSubject.value = false
+  loadSubjects()
+}
+
+// 准备新增章节
+const prepareAddCategory = (parentId: number | null) => {
+  categoryForm.value.name = ''
+  categoryForm.value.parent_id = parentId
+  showAddCategory.value = true
+}
+
+// 新增章节
+const handleAddCategory = async () => {
+  if (!categoryForm.value.name || !appStore.currentSubjectId) return
+  await categoryApi.create({
+    name: categoryForm.value.name,
+    parent_id: categoryForm.value.parent_id,
+    subject_id: appStore.currentSubjectId,
+    sort_order: 0
+  })
+  ElMessage.success('章节创建成功')
+  showAddCategory.value = false
+  // 重新加载章节
+  const res = await categoryApi.listBySubject(appStore.currentSubjectId)
+  categories.value = res as any
+}
+
+onMounted(loadSubjects)
+</script>
+</file>
+
+<file path="tsconfig.app.json">
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "types": ["vite/client"],
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
+}
+</file>
+
+<file path="tsconfig.json">
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
+</file>
+
+<file path="tsconfig.node.json">
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "types": ["node"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["vite.config.ts"]
+}
+</file>
+
+<file path="vite.config.ts">
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [
+    vue(),
+    tailwindcss(),
+  ],
+})
+</file>
+
+</files>
