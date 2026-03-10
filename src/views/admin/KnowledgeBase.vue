@@ -1,51 +1,86 @@
 <template>
   <div class="flex h-screen bg-gray-100 overflow-hidden text-gray-700 font-sans">
-    <!-- 1. 最左侧：知识空间导航 (科目) -->
-    <div class="w-64 bg-slate-900 text-white flex flex-col shadow-xl">
-      <!-- 顶部：返回首页入口 -->
-      <div class="p-5 flex justify-between items-center border-b border-slate-800">
+    
+    <!-- 1. 最左侧：知识空间导航 (支持折叠) -->
+    <div 
+      :class="[
+        'bg-slate-900 text-white flex flex-col shadow-xl transition-all duration-300 ease-in-out relative',
+        isCollapsed ? 'w-16' : 'w-64'
+      ]"
+    >
+      <!-- 顶部控制区 -->
+      <div class="p-4 flex items-center border-b border-slate-800 overflow-hidden" :class="isCollapsed ? 'justify-center' : 'justify-between'">
         <div 
-          class="flex items-center gap-2 cursor-pointer hover:text-indigo-400 transition-all group"
+          v-show="!isCollapsed"
+          class="flex items-center gap-2 cursor-pointer hover:text-indigo-400 transition-all group whitespace-nowrap"
           @click="router.push('/')"
         >
           <el-icon class="group-hover:scale-110 transition-transform" :size="20"><HomeFilled /></el-icon>
           <h1 class="font-black text-sm tracking-widest uppercase">返回首页</h1>
         </div>
-        <el-button :icon="Plus" circle size="small" @click="openSubjectCreator" />
+        
+        <!-- 折叠切换按钮 (展开时在右侧，折叠时在中间) -->
+        <el-button 
+          link 
+          :icon="isCollapsed ? Expand : Fold" 
+          class="text-slate-400 hover:text-white"
+          @click="isCollapsed = !isCollapsed"
+        />
+      </div>
+
+      <!-- 新增按钮 (折叠时简化) -->
+      <div class="p-3">
+        <el-button 
+          type="primary" 
+          :class="['w-full transition-all overflow-hidden', isCollapsed ? 'px-0' : '']"
+          @click="openSubjectCreator"
+        >
+          <el-icon><Plus /></el-icon>
+          <span v-show="!isCollapsed" class="ml-2 whitespace-nowrap">新建空间</span>
+        </el-button>
       </div>
 
       <!-- 中间：科目列表内容 -->
-      <div class="flex-1 overflow-y-auto py-2 custom-scrollbar">
+      <div class="flex-1 overflow-y-auto py-2 custom-scrollbar overflow-x-hidden">
         <div 
           v-for="sub in subjects" :key="sub.id"
           @click="selectSubject(sub)"
-          :class="['px-5 py-4 cursor-pointer transition-all flex items-center justify-between border-l-4 group', 
-                    appStore.currentSubjectId === sub.id ? 'bg-slate-800 border-indigo-500 text-white' : 'border-transparent text-slate-400 hover:text-white hover:bg-slate-800']"
+          :class="[
+            'px-5 py-4 cursor-pointer transition-all flex items-center border-l-4 group relative', 
+            appStore.currentSubjectId === sub.id ? 'bg-slate-800 border-indigo-500 text-white' : 'border-transparent text-slate-400 hover:text-white hover:bg-slate-800',
+            isCollapsed ? 'justify-center px-0' : 'justify-between'
+          ]"
         >
           <div class="flex items-center gap-3 truncate">
-             <el-icon :size="18" :style="{ color: sub.theme_color }">
-               <component :is="iconMap[sub.icon_type || 'Collection']" />
-             </el-icon>
-             <span class="text-sm font-medium truncate">{{ sub.name }}</span>
+             <el-tooltip :content="sub.name" placement="right" :disabled="!isCollapsed">
+               <el-icon :size="20" :style="{ color: sub.theme_color }">
+                 <component :is="iconMap[sub.icon_type || 'Collection']" />
+               </el-icon>
+             </el-tooltip>
+             <span v-show="!isCollapsed" class="text-sm font-medium truncate whitespace-nowrap">{{ sub.name }}</span>
           </div>
+          
           <el-icon 
-            class="opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all" 
+            v-show="!isCollapsed"
+            class="opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all ml-2" 
             :size="14" 
             @click.stop="handleDeleteSubject(sub.id)"
           ><Delete /></el-icon>
         </div>
       </div>
 
-      <!-- 底部：用户信息与退出 -->
-      <div class="p-4 border-t border-slate-800 bg-slate-950/20">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2 truncate">
-            <el-avatar :size="24" class="bg-indigo-600 text-[10px] font-bold">
-              {{ (userStore.userInfo?.username || 'User').substring(0, 2).toUpperCase() }}
+      <!-- 底部：用户信息 -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/20 flex flex-col items-center gap-4">
+        <div :class="['flex items-center w-full overflow-hidden transition-all', isCollapsed ? 'justify-center' : 'gap-3 justify-between']">
+          <div class="flex items-center gap-2 min-w-0">
+            <el-avatar :size="28" class="bg-indigo-600 text-[10px] font-bold flex-shrink-0">
+              {{ (userStore.userInfo?.username || 'U').substring(0, 2).toUpperCase() }}
             </el-avatar>
-            <span class="text-xs text-slate-300 truncate">{{ userStore.userInfo?.username || '未登录' }}</span>
+            <span v-show="!isCollapsed" class="text-xs text-slate-300 truncate font-medium whitespace-nowrap">
+              {{ userStore.userInfo?.username || '未登录' }}
+            </span>
           </div>
-          <el-tooltip content="退出系统" placement="top">
+          <el-tooltip content="退出系统" placement="right">
             <el-button link type="danger" :icon="SwitchButton" @click="handleLogout" />
           </el-tooltip>
         </div>
@@ -88,7 +123,7 @@
         </el-tree>
         <div v-else class="h-full flex flex-col items-center justify-center text-gray-400 text-xs px-10 text-center space-y-3">
           <el-icon :size="32" class="opacity-20"><Files /></el-icon>
-          <p>请选择左侧科目以加载知识体系</p>
+          <p>请选择左侧科目</p>
         </div>
       </div>
     </div>
@@ -156,13 +191,12 @@
         </div>
         <div v-else class="h-full flex flex-col items-center justify-center text-gray-400 animate-pulse space-y-4">
           <el-icon :size="64" class="opacity-10"><Memo /></el-icon>
-          <p class="tracking-widest text-sm uppercase font-bold text-gray-300">Focus on your knowledge</p>
-          <el-button v-if="appStore.currentSubjectId" type="info" plain class="mt-6" :icon="Printer" @click="router.push('/print')">导出全科目讲义</el-button>
+          <p class="tracking-widest text-sm uppercase font-bold text-gray-300 font-mono">Select a category to manage</p>
         </div>
       </main>
     </div>
 
-    <!-- 弹窗：新建知识空间 -->
+    <!-- 弹窗部分保持不变 -->
     <el-dialog v-model="showAddSubject" title="知识空间管理" width="450px" destroy-on-close>
       <el-form :model="subjectForm" label-position="top">
         <el-form-item label="名称" required>
@@ -191,7 +225,6 @@
       </template>
     </el-dialog>
 
-    <!-- 弹窗：新增目录 -->
     <el-dialog v-model="showAddCategory" title="目录节点管理" width="400px">
       <el-form :model="categoryForm" label-position="top">
         <el-form-item label="标题" required>
@@ -204,7 +237,6 @@
       </template>
     </el-dialog>
 
-    <!-- 弹窗：知识卡片编辑器 -->
     <el-dialog v-model="showCardEditor" :title="editingCardId ? '编辑知识节点' : '新建知识卡片'" width="85%" top="5vh" destroy-on-close>
       <el-form :model="cardForm" label-position="top">
         <div class="grid grid-cols-12 gap-8">
@@ -256,7 +288,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { 
-  Plus, Postcard, Fold, Files, Memo, Printer, Delete, HomeFilled, SwitchButton,
+  Plus, Postcard, Fold, Expand, Files, Memo, Printer, Delete, HomeFilled, SwitchButton,
   Reading, Monitor, Coffee, Key, Opportunity, Collection 
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -274,6 +306,9 @@ const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
 
+// --- 状态控制 ---
+const isCollapsed = ref(false) // 核心：侧边栏折叠状态
+
 // 图标映射
 const iconMap: any = { Book: Reading, Code: Monitor, Life: Coffee, Core: Key, Growth: Opportunity, Collection: Collection }
 
@@ -282,7 +317,7 @@ const subjects = ref<Subject[]>([])
 const categories = ref<Category[]>([])
 const cards = ref<Card[]>([])
 
-// 状态控制
+// 业务状态
 const currentCategoryId = ref<number | null>(null)
 const currentCategoryName = ref('')
 const editingCardId = ref<number | null>(null)
@@ -296,7 +331,7 @@ const subjectForm = ref({ name: '', description: '', theme_color: '#6366f1', ico
 const categoryForm = ref({ name: '', parent_id: null as number | null })
 const cardForm = ref({ title: '', essence: '', insights: '', difficulty: 3, importance: 'B', interval_days: 1, card_type: 'qa' })
 
-// --- 加载数据 ---
+// --- 数据加载与方法 ---
 const loadSubjects = async () => {
   try {
     const res = await subjectApi.list()
@@ -308,7 +343,6 @@ const loadSubjects = async () => {
 
 onMounted(() => loadSubjects())
 
-// --- 科目操作 ---
 const selectSubject = async (sub: Subject) => {
   appStore.setSubject(sub.id, sub.name, sub.theme_color)
   currentCategoryId.value = null
@@ -340,7 +374,6 @@ const handleDeleteSubject = async (id: number) => {
   } catch {}
 }
 
-// --- 目录操作 ---
 const categoryTree = computed(() => {
   const map: any = {}
   const tree: any[] = []
@@ -394,7 +427,6 @@ const handleDeleteCategory = async (id: number) => {
   } catch {}
 }
 
-// --- 卡片操作 ---
 const openCardEditor = () => {
   editingCardId.value = null
   cardForm.value = { title: '', essence: '', insights: '', difficulty: 3, importance: 'B', interval_days: 1, card_type: 'qa' }
@@ -432,7 +464,6 @@ const handleDeleteCard = async (id: number) => {
   } catch {}
 }
 
-// --- 系统导航 ---
 const handleLogout = () => {
   ElMessageBox.confirm('确定要退出 Polymath 系统吗？', '注销', { type: 'warning' }).then(() => {
     userStore.logout()

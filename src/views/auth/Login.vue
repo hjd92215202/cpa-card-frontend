@@ -48,7 +48,7 @@ const form = ref({ username: '', password: '', email: '' });
 
 const handleSubmit = async () => {
   if (!form.value.username || !form.value.password) return;
-  loading.ref = true;
+  loading.value = true;
   try {
     if (isLogin.value) {
       const res: any = await api.post('/auth/login', form.value);

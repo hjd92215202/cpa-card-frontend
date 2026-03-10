@@ -45,16 +45,23 @@ index.html
 package.json
 public/vite.svg
 README.md
+src/api/card.ts
 src/api/category.ts
 src/api/index.ts
 src/api/subject.ts
 src/App.vue
 src/assets/vue.svg
+src/components/FlashCard.vue
 src/main.ts
 src/router/index.ts
 src/store/appStore.ts
+src/store/userStore.ts
 src/style.css
 src/views/admin/KnowledgeBase.vue
+src/views/admin/PrintView.vue
+src/views/auth/Login.vue
+src/views/Home.vue
+src/views/study/StudyMode.vue
 tsconfig.app.json
 tsconfig.json
 tsconfig.node.json
@@ -63,33 +70,6 @@ vite.config.ts
 
 <files>
 This section contains the contents of the repository's files.
-
-<file path=".gitignore">
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-</file>
 
 <file path="index.html">
 <!doctype html>
@@ -147,74 +127,6 @@ dist-ssr
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
 </file>
 
-<file path="README.md">
-# Vue 3 + TypeScript + Vite
-
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
-
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
-</file>
-
-<file path="src/api/category.ts">
-import api from './index'
-
-export interface Category {
-  id: number;
-  subject_id: number;
-  parent_id?: number | null;
-  name: string;
-  sort_order: number;
-}
-
-export const categoryApi = {
-  listBySubject: (subjectId: number) => 
-    api.get<Category[]>(`/categories?subject_id=${subjectId}`),
-  create: (data: Partial<Category>) => api.post<Category>('/categories', data),
-}
-</file>
-
-<file path="src/api/index.ts">
-import axios from 'axios';
-import { ElMessage } from 'element-plus';
-
-const api = axios.create({
-  // Rust 后端地址
-  baseURL: 'http://localhost:3000/api',
-  timeout: 5000,
-});
-
-// 响应拦截器：统一处理错误提示
-api.interceptors.response.use(
-  (response) => {
-    // 直接返回数据部分
-    return response.data;
-  },
-  (error) => {
-    const message = error.response?.data?.error || '请求失败';
-    ElMessage.error(message);
-    return Promise.reject(error);
-  }
-);
-
-export default api;
-</file>
-
-<file path="src/api/subject.ts">
-import api from './index'
-
-export interface Subject {
-  id: number;
-  name: string;
-  description?: string;
-  theme_color?: string;
-}
-
-export const subjectApi = {
-  list: () => api.get<Subject[]>('/subjects'),
-  create: (data: Partial<Subject>) => api.post<Subject>('/subjects', data),
-}
-</file>
-
 <file path="src/App.vue">
 <template>
   <el-config-provider>
@@ -256,49 +168,33 @@ app.use(router)
 app.mount('#app')
 </file>
 
-<file path="src/router/index.ts">
-import { createRouter, createWebHistory } from 'vue-router';
-import KnowledgeBase from '../views/admin/KnowledgeBase.vue';
+<file path="src/store/userStore.ts">
+import { defineStore } from 'pinia';
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: '/',
-      redirect: '/admin/kb'
+export const useUserStore = defineStore('user', {
+    state: () => ({
+        token: localStorage.getItem('token') || '',
+        userInfo: JSON.parse(localStorage.getItem('userInfo') || '{}'),
+    }),
+    getters: {
+        isLoggedIn: (state) => !!state.token,
     },
-    {
-      path: '/admin/kb',
-      name: 'KnowledgeBase',
-      component: KnowledgeBase
-    },
-    // 后续增加复习页面
-    // { path: '/study', component: () => import('../views/study/StudyView.vue') }
-  ]
-});
-
-export default router;
-</file>
-
-<file path="src/store/appStore.ts">
-import { defineStore } from 'pinia'
-
-export const useAppStore = defineStore('app', {
-  state: () => ({
-    currentSubjectId: null as number | null,
-    currentSubjectName: '' as string,
-    themeColor: '#1890ff', // 动态主题色
-  }),
-  actions: {
-    setSubject(id: number, name: string, color?: string) {
-      this.currentSubjectId = id
-      this.currentSubjectName = name
-      if (color) this.themeColor = color
-      // 切换主题色到 CSS 变量，供 Tailwind 使用
-      document.documentElement.style.setProperty('--primary-color', color || '#1890ff')
+    actions: {
+        setAuth(token: string, user: any) {
+            this.token = token;
+            this.userInfo = user;
+            localStorage.setItem('token', token);
+            localStorage.setItem('userInfo', JSON.stringify(user));
+        },
+        logout() {
+            this.token = '';
+            this.userInfo = {};
+            localStorage.removeItem('token');
+            localStorage.removeItem('userInfo');
+            window.location.href = '/login';
+        }
     }
-  }
-})
+});
 </file>
 
 <file path="src/style.css">
@@ -310,170 +206,194 @@ export const useAppStore = defineStore('app', {
 }
 </file>
 
-<file path="src/views/admin/KnowledgeBase.vue">
+<file path="src/views/admin/PrintView.vue">
 <template>
-  <div class="flex h-screen bg-gray-100">
-    <!-- 1. 左侧学科选择 -->
-    <div class="w-64 bg-white border-r flex flex-col">
-      <div class="p-4 font-bold text-lg border-b flex justify-between items-center">
-        <span>CPA 科目</span>
-        <el-button :icon="Plus" circle size="small" @click="showAddSubject = true" />
-      </div>
-      <div class="flex-1 overflow-y-auto">
-        <div 
-          v-for="sub in subjects" :key="sub.id"
-          @click="selectSubject(sub)"
-          :class="['p-4 cursor-pointer hover:bg-blue-50 transition-colors border-l-4', 
-                    appStore.currentSubjectId === sub.id ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-transparent']"
-        >
-          {{ sub.name }}
+  <div class="print-container bg-white p-10 min-h-screen">
+    <!-- 头部信息 -->
+    <header class="text-center mb-10 border-b-2 border-slate-900 pb-6">
+      <h1 class="text-4xl font-black text-slate-900">{{ appStore.currentSubjectName }} - 精华讲义</h1>
+      <p class="text-slate-500 mt-4 italic">生成时间：{{ new Date().toLocaleDateString() }} | 备考人：Polymath Hub 用户</p>
+    </header>
+
+    <!-- 卡片列表 -->
+    <div class="space-y-12">
+      <section 
+        v-for="card in cards" 
+        :key="card.id" 
+        class="card-print-item break-inside-avoid border-l-4 border-slate-200 pl-6 py-2"
+      >
+        <div class="flex justify-between items-baseline mb-4">
+          <h2 class="text-2xl font-bold text-slate-800">{{ card.title }}</h2>
+          <span class="text-sm font-mono text-slate-400 uppercase">[重要度: {{ card.importance }}]</span>
         </div>
-      </div>
+
+        <div class="grid grid-cols-1 gap-6">
+          <!-- 正面：知识精华 -->
+          <div class="essence-block">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">● 知识精华</h3>
+            <div class="prose prose-slate max-w-none">
+              <MdPreview :modelValue="card.essence" />
+            </div>
+          </div>
+
+          <!-- 背面：备考心得 -->
+          <div v-if="card.insights" class="insights-block bg-slate-50 p-4 rounded-lg">
+            <h3 class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2">★ 备考心得 / 坑点</h3>
+            <div class="prose prose-indigo max-w-none italic text-sm">
+              <MdPreview :modelValue="card.insights" />
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
-    <!-- 2. 右侧章节树 -->
-    <div class="flex-1 flex flex-col p-8 overflow-y-auto">
-      <div v-if="appStore.currentSubjectId" class="max-w-4xl">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold">{{ appStore.currentSubjectName }} - 章节大纲</h2>
-          <el-button type="primary" @click="prepareAddCategory(null)">添加根章节</el-button>
-        </div>
-
-        <el-card shadow="never">
-          <el-tree
-            :data="categoryTree"
-            node-key="id"
-            default-expand-all
-            :expand-on-click-node="false"
-          >
-            <template #default="{ node, data }">
-              <div class="flex-1 flex items-center justify-between pr-4">
-                <span>{{ data.name }}</span>
-                <span>
-                  <el-button link type="primary" @click="prepareAddCategory(data.id)">添加子项</el-button>
-                  <el-button link type="danger">删除</el-button>
-                </span>
-              </div>
-            </template>
-          </el-tree>
-        </el-card>
-      </div>
-      
-      <div v-else class="flex-1 flex flex-col items-center justify-center text-gray-400">
-        <el-icon :size="64"><Notebook /></el-icon>
-        <p class="mt-4">请在左侧选择一个科目开始</p>
-      </div>
+    <!-- 打印控制按钮（打印时会自动隐藏） -->
+    <div class="fixed bottom-10 right-10 no-print flex gap-4">
+      <el-button type="info" size="large" circle :icon="ArrowLeft" @click="router.back()" />
+      <el-button type="primary" size="large" shadow @click="handlePrint">
+        确认导出 PDF / 打印
+      </el-button>
     </div>
   </div>
-
-  <!-- 添加学科弹窗 -->
-  <el-dialog v-model="showAddSubject" title="新增 CPA 科目" width="400px">
-    <el-form :model="subjectForm" label-position="top">
-      <el-form-item label="科目名称">
-        <el-input v-model="subjectForm.name" placeholder="如：会计" />
-      </el-form-item>
-      <el-form-item label="描述">
-        <el-input v-model="subjectForm.description" type="textarea" />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <el-button @click="showAddSubject = false">取消</el-button>
-      <el-button type="primary" @click="handleAddSubject">确定</el-button>
-    </template>
-  </el-dialog>
-
-  <!-- 添加章节弹窗 -->
-  <el-dialog v-model="showAddCategory" title="新增章节" width="400px">
-    <el-form :model="categoryForm" label-position="top">
-      <el-form-item label="章节名称">
-        <el-input v-model="categoryForm.name" placeholder="如：第一章 长期股权投资" />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <el-button @click="showAddCategory = false">取消</el-button>
-      <el-button type="primary" @click="handleAddCategory">确定</el-button>
-    </template>
-  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { Plus, Notebook } from '@element-plus/icons-vue'
-import { subjectApi, type Subject } from '../../api/subject'
-import { categoryApi, type Category } from '../../api/category'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ArrowLeft } from '@element-plus/icons-vue'
+import { MdPreview } from 'md-editor-v3'
+import 'md-editor-v3/lib/preview.css'
+import { cardApi, type Card } from '../../api/card'
 import { useAppStore } from '../../store/appStore'
-import { ElMessage } from 'element-plus'
 
-
+const router = useRouter()
 const appStore = useAppStore()
-const subjects = ref<Subject[]>([])
-const categories = ref<Category[]>([])
-const showAddSubject = ref(false)
-const showAddCategory = ref(false)
-const subjectForm = ref({ name: '', description: '', theme_color: '#1890ff' })
-const categoryForm = ref({ name: '', parent_id: null as number | null })
+const cards = ref<Card[]>([])
 
-// 加载学科
-const loadSubjects = async () => {
-  const res = await subjectApi.list()
-  subjects.value = res as any
-}
-
-// 选择学科并加载章节
-const selectSubject = async (sub: Subject) => {
-  appStore.setSubject(sub.id, sub.name, sub.theme_color)
-  const res = await categoryApi.listBySubject(sub.id)
-  categories.value = res as any
-}
-
-// 将扁平的章节数据转换为树结构
-const categoryTree = computed(() => {
-  const map: any = {}
-  const tree: any[] = []
-  categories.value.forEach(cat => map[cat.id] = { ...cat, children: [] })
-  categories.value.forEach(cat => {
-    if (cat.parent_id) {
-      map[cat.parent_id]?.children.push(map[cat.id])
-    } else {
-      tree.push(map[cat.id])
-    }
-  })
-  return tree
+onMounted(async () => {
+  if (!appStore.currentSubjectId) {
+    router.push('/')
+    return
+  }
+  // 加载该科目下的全量卡片用于导出
+  const res = await cardApi.listBySubject(appStore.currentSubjectId)
+  cards.value = res as any
 })
 
-// 新增学科
-const handleAddSubject = async () => {
-  if (!subjectForm.value.name) return
-  await subjectApi.create(subjectForm.value)
-  ElMessage.success('学科创建成功')
-  showAddSubject.value = false
-  loadSubjects()
+const handlePrint = () => {
+  window.print()
+}
+</script>
+
+<style scoped>
+/* 核心：打印样式控制 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background-color: white !important;
+    padding: 0 !important;
+  }
+
+  .print-container {
+    padding: 0 !important;
+  }
+
+  /* 防止卡片在页面底部被截断 */
+  .card-print-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border-color: #e2e8f0 !important; /* 强制显示边框颜色 */
+    margin-bottom: 3rem !important;
+  }
+
+  /* 移除链接后面的 URL 显示 */
+  a[href]:after {
+    content: "" !important;
+  }
 }
 
-// 准备新增章节
-const prepareAddCategory = (parentId: number | null) => {
-  categoryForm.value.name = ''
-  categoryForm.value.parent_id = parentId
-  showAddCategory.value = true
+/* 屏幕显示时的修饰 */
+.card-print-item {
+  transition: all 0.3s;
 }
 
-// 新增章节
-const handleAddCategory = async () => {
-  if (!categoryForm.value.name || !appStore.currentSubjectId) return
-  await categoryApi.create({
-    name: categoryForm.value.name,
-    parent_id: categoryForm.value.parent_id,
-    subject_id: appStore.currentSubjectId,
-    sort_order: 0
-  })
-  ElMessage.success('章节创建成功')
-  showAddCategory.value = false
-  // 重新加载章节
-  const res = await categoryApi.listBySubject(appStore.currentSubjectId)
-  categories.value = res as any
+:deep(.md-editor-preview) {
+  font-size: 14px;
 }
+</style>
+</file>
 
-onMounted(loadSubjects)
+<file path="src/views/auth/Login.vue">
+<template>
+  <div class="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-xl p-10">
+      <div class="text-center mb-10">
+        <h1 class="text-3xl font-black text-indigo-600">CPA Polymath</h1>
+        <p class="text-slate-400 mt-2">{{ isLogin ? '欢迎回来' : '开启学习之旅' }}</p>
+      </div>
+
+      <el-form label-position="top">
+        <el-form-item label="用户名">
+          <el-input v-model="form.username" size="large" placeholder="请输入用户名" />
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="form.password" type="password" size="large" show-password placeholder="请输入密码" />
+        </el-form-item>
+        <el-form-item v-if="!isLogin" label="电子邮箱 (可选)">
+          <el-input v-model="form.email" size="large" placeholder="xxx@example.com" />
+        </el-form-item>
+
+        <el-button type="primary" size="large" class="w-full mt-6" :loading="loading" @click="handleSubmit">
+          {{ isLogin ? '登录' : '注册并登录' }}
+        </el-button>
+      </el-form>
+
+      <div class="mt-8 text-center text-sm">
+        <span class="text-slate-400">{{ isLogin ? '没有账号?' : '已有账号?' }}</span>
+        <el-button link type="primary" @click="isLogin = !isLogin">
+          {{ isLogin ? '立即注册' : '返回登录' }}
+        </el-button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
+import api from '../../api';
+import { useUserStore } from '../../store/userStore';
+
+const router = useRouter();
+const userStore = useUserStore();
+const isLogin = ref(true);
+const loading = ref(false);
+
+const form = ref({ username: '', password: '', email: '' });
+
+const handleSubmit = async () => {
+  if (!form.value.username || !form.value.password) return;
+  loading.ref = true;
+  try {
+    if (isLogin.value) {
+      const res: any = await api.post('/auth/login', form.value);
+      userStore.setAuth(res.token, { id: res.user_id, username: res.username });
+      ElMessage.success('登录成功');
+    } else {
+      await api.post('/auth/register', form.value);
+      isLogin.value = true;
+      ElMessage.success('注册成功，请登录');
+      return;
+    }
+    router.push('/');
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
 </file>
 
@@ -547,6 +467,1376 @@ export default defineConfig({
     tailwindcss(),
   ],
 })
+</file>
+
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.xml
+</file>
+
+<file path="README.md">
+# Polymath Hub - 考试学习卡片管理系统
+
+一个现代化的闪卡学习平台，设计用于专业考试（特别是CPA）的高效复习。采用间隔重复算法，将学习内容转化为永久记忆。
+
+## 🎯 项目概述
+
+**Polymath Hub** 是一个基于Vue 3的前端应用，提供：
+- 📚 **知识库管理**：创建、组织和管理学习内容
+- 🎴 **闪卡系统**：交互式学习卡片（支持正反面翻转）
+- 🧠 **间隔复习**：根据难度级别智能安排复习周期
+- 📊 **进度追踪**：实时显示学习进度和完成状态
+- 🎨 **现代UI**：响应式设计，视觉友好的用户界面
+
+## 🏗️ 项目结构
+
+```
+src/
+├── views/                      # 页面/路由视图
+│   ├── Home.vue               # 首页 - 知识库展示
+│   ├── admin/
+│   │   └── KnowledgeBase.vue   # 知识库管理工作台
+│   └── study/
+│       └── StudyMode.vue       # 复习模式
+├── components/
+│   └── FlashCard.vue           # 闪卡组件（可翻转）
+├── api/                        # API接口层
+│   ├── index.ts               # Axios实例配置
+│   ├── card.ts                # 卡片API
+│   ├── category.ts            # 分类API
+│   └── subject.ts             # 科目API
+├── router/
+│   └── index.ts               # 路由配置
+├── store/
+│   └── appStore.ts            # Pinia全局状态管理
+├── assets/                    # 静态资源
+├── App.vue                    # 根组件
+├── main.ts                    # 应用入口
+└── style.css                  # 全局样式
+```
+
+## 🚀 快速开始
+
+### 环境要求
+- Node.js 16+
+- npm 或 yarn
+
+### 安装依赖
+```bash
+npm install
+```
+
+### 开发模式
+```bash
+npm run dev
+```
+应用将运行在 `http://localhost:5173`
+
+### 生产构建
+```bash
+npm run build
+```
+
+### 预览构建结果
+```bash
+npm run preview
+```
+
+## 📋 主要功能
+
+### 1. 首页 (Home)
+- 展示所有知识库/科目卡片
+- 每个科目卡片显示：名称、描述、可见性（公开/私有）
+- 点击卡片进入学习模式
+- 快速创建新知识库
+
+### 2. 知识库管理 (Knowledge Base)
+三栏式布局：
+- **左栏**：知识空间导航 - 快速切换不同科目
+- **中栏**：目录大纲树 - 组织章节和分类
+- **右栏**：内容管理 - 创建、编辑、删除卡片
+
+功能特性：
+- 支持多级目录结构
+- 卡片类型支持（代码/笔记）
+- 重要性等级标记 (A/B/C)
+- 难度评分系统
+
+### 3. 复习模式 (Study Mode)
+- 根据分类加载相关卡片
+- 交互式闪卡翻转查看
+- 进度条实时显示
+- 三档难度反馈机制：
+  - 「太难了」→ 1天后复习
+  - 「模糊」→ 3天后复习
+  - 「简单」→ 7天后复习
+- 复习完成时显示成就提示
+
+## 🛠️ 技术栈
+
+| 分类 | 技术 | 版本 |
+|------|------|------|
+| 框架 | Vue 3 | 3.5.25 |
+| 语言 | TypeScript | ~5.9.3 |
+| 构建工具 | Vite | 7.3.1 |
+| UI组件库 | Element Plus | 2.13.5 |
+| 样式 | Tailwind CSS | 4.2.1 |
+| 状态管理 | Pinia | 3.0.4 |
+| 路由 | Vue Router | 4.6.4 |
+| HTTP客户端 | Axios | 1.13.6 |
+| Markdown编辑 | md-editor-v3 | 6.4.0 |
+| 图标库 | lucide-vue-next | 0.577.0 |
+
+## 📦 核心模块
+
+### API 模块 (`src/api/`)
+- **axios配置**：自动添加错误处理和响应拦截
+- **baseURL**：`http://localhost:3000/api`
+- **超时**：5000ms
+- **错误处理**：统一使用 Element Plus Toast通知
+
+### 状态管理 (`src/store/`)
+- **appStore.ts**：管理全局应用状态
+  - currentSubjectId：当前选中的科目
+  - currentCategoryId：当前选中的分类
+  - 其他应用层状态
+
+### 路由配置 (`src/router/`)
+```
+/ → Home (首页)
+/admin/kb → KnowledgeBase (管理工作台)
+/study → StudyMode (复习模式)
+```
+
+## 🎨 UI设计特色
+
+- **现代风格**：使用Tailwind CSS实现响应式设计
+- **渐变配色**：品牌色采用靛蓝→蓝色渐变
+- **互动体验**：卡片悬停动画、平滑过渡效果
+- **响应式**：完美支持移动设备和桌面端
+- **易用性**：直观的三栏式管理界面
+
+## 🔄 数据流向
+
+```
+Home (展示) → KnowledgeBase (管理) → StudyMode (学习)
+                    ↓
+                  API调用
+                    ↓
+            Rust后端 (localhost:3000)
+```
+
+## 📝 卡片数据结构
+
+```typescript
+interface Card {
+  id: string
+  title: string              // 卡片标题
+  essence: string            // 核心要点/考点
+  insights?: string          // 备考心得/坑点提醒
+  difficulty: number         // 难度评分 (1-5)
+  importance: 'A' | 'B' | 'C' // 重要性等级
+  card_type: 'code' | 'note' // 卡片类型
+}
+```
+
+## 🎯 间隔复习算法
+
+基于用户反馈设定复习间隔：
+- **1天** - 标记为「太难了」时触发
+- **3天** - 标记为「模糊」时触发  
+- **7天** - 标记为「简单」时触发
+
+后端（Rust）负责计算下次复习时间。
+
+## 💡 使用建议
+
+1. **首次使用**：从首页创建新的知识库
+2. **内容组织**：使用按章节/主题分类，方便管理
+3. **高效复习**：
+   - 每日坚持复习
+   - 优先复习重要等级为A的卡片
+   - 根据难度反馈调整学习策略
+4. **内容维护**：定期更新备考心得和坑点提醒
+
+## 🔧 开发指南
+
+### 添加新页面
+1. 在 `src/views/` 创建 `.vue` 文件
+2. 在 `src/router/index.ts` 中注册路由
+3. 使用 `useRouter()` 进行导航
+
+### 调用API
+```typescript
+import { cardApi } from '@/api/card'
+
+const response = await cardApi.getCards(categoryId)
+```
+
+### 使用全局状态
+```typescript
+import { useAppStore } from '@/store/appStore'
+
+const appStore = useAppStore()
+appStore.currentSubjectId = 'xxx'
+```
+
+## 📱 浏览器支持
+
+- Chrome/Edge (最新版本)
+- Firefox (最新版本)
+- Safari (最新版本)
+
+## 📄 许可证
+
+待补充
+
+## 👨‍💻 贡献指南
+
+待补充
+
+## 🤝 后端连接
+
+本项目需要配套的Rust后端服务：
+- **API地址**：`http://localhost:3000/api`
+- **功能**：处理卡片CRUD、间隔复习计算、用户认证等
+
+## 📞 支持
+
+遇到问题？请检查：
+1. Node.js 和 npm 版本
+2. 后端服务是否在运行
+3. 浏览器控制台的错误消息
+4. 网络连接是否正常
+
+---
+
+**Polymath Hub** - 构建你的第二大脑 🧠💡
+</file>
+
+<file path="src/api/category.ts">
+import api from './index'
+
+export interface Category {
+  id: number;
+  subject_id: number;
+  parent_id?: number | null;
+  name: string;
+  sort_order: number;
+}
+
+export const categoryApi = {
+  listBySubject: (subjectId: number) => 
+    api.get<Category[]>(`/categories?subject_id=${subjectId}`),
+  create: (data: Partial<Category>) => api.post<Category>('/categories', data),
+  delete: (id: number) => api.delete(`/categories/${id}`)
+}
+</file>
+
+<file path="src/api/index.ts">
+import axios from 'axios';
+import { ElMessage } from 'element-plus';
+import { useUserStore } from '../store/userStore';
+
+const api = axios.create({
+  // Rust 后端地址
+  baseURL: 'http://localhost:3000/api',
+  timeout: 5000,
+});
+
+// 请求拦截：注入 Token
+api.interceptors.request.use((config) => {
+  const userStore = useUserStore();
+  if (userStore.token) {
+    config.headers.Authorization = `Bearer ${userStore.token}`;
+  }
+  return config;
+});
+
+// 响应拦截：处理 401 过期
+api.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    if (error.response?.status === 401) {
+      const userStore = useUserStore();
+      userStore.logout();
+      ElMessage.error('登录已过期，请重新登录');
+    } else {
+      const message = error.response?.data?.error || '请求失败';
+      ElMessage.error(message);
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default api;
+</file>
+
+<file path="src/components/FlashCard.vue">
+<template>
+  <div 
+    class="card-container h-[550px] w-full max-w-2xl cursor-pointer"
+    @click="isFlipped = !isFlipped"
+  >
+    <div :class="['card-inner', isFlipped ? 'is-flipped' : '']">
+      <!-- 【正面】：保持简洁 -->
+      <div class="card-face card-front p-10 flex flex-col shadow-2xl rounded-[2.5rem] border border-slate-100 bg-white relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-50 rounded-full opacity-60"></div>
+        <div class="flex justify-between items-center mb-8 relative z-10">
+          <el-tag effect="dark" class="border-none bg-blue-600 px-4 rounded-full font-bold">
+            {{ importance }}级考点
+          </el-tag>
+          <el-rate :model-value="difficulty" disabled />
+        </div>
+        <h2 class="text-4xl font-black text-slate-800 mb-8 text-center">{{ title }}</h2>
+        <div class="flex-1 overflow-y-auto custom-content prose prose-slate max-w-none">
+          <MdPreview :modelValue="essence" theme="light" />
+        </div>
+        <div class="mt-6 text-center text-slate-300 text-xs font-bold tracking-widest animate-bounce">
+          CLICK TO REVEAL INSIGHTS 👆
+        </div>
+      </div>
+
+      <!-- 【背面】：光感/通透/易读 -->
+      <div class="card-face card-back p-10 flex flex-col shadow-2xl rounded-[2.5rem] bg-[#0f172a] text-white relative overflow-hidden">
+        <!-- 核心装饰：右上角的光晕 -->
+        <div class="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/20 blur-[80px] rounded-full"></div>
+        <div class="absolute -left-20 -bottom-20 w-60 h-60 bg-blue-500/10 blur-[60px] rounded-full"></div>
+        
+        <!-- 顶部标签 -->
+        <div class="relative z-10 flex items-center gap-3 mb-8">
+          <div class="bg-indigo-500 p-2 rounded-lg shadow-lg shadow-indigo-500/40">
+            <el-icon :size="18" color="white"><Compass /></el-icon>
+          </div>
+          <span class="text-indigo-300 font-black text-xs uppercase tracking-widest">Mastery Insights</span>
+        </div>
+        
+        <!-- 内容区域：毛玻璃容器 -->
+        <div class="relative z-10 flex-1 overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 flex flex-col shadow-inner">
+          <div class="flex-1 overflow-y-auto custom-content-dark prose prose-invert max-w-none">
+            <!-- 强制文字更白、更大 -->
+            <MdPreview 
+              :modelValue="insights || '此考点暂无心得记录...'" 
+              theme="dark" 
+              class="!bg-transparent !text-slate-100 text-lg leading-relaxed" 
+            />
+          </div>
+        </div>
+
+        <!-- 底部装饰 -->
+        <div class="relative z-10 mt-6 flex justify-between items-center px-2">
+          <div class="flex flex-col">
+            <span class="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">Knowledge Node</span>
+            <span class="text-[10px] text-indigo-400 font-mono italic">#CPA_Exam_Ready</span>
+          </div>
+          <div class="text-[10px] text-slate-500 bg-slate-900/80 px-3 py-1 rounded-full border border-white/5">
+            点击返回正面
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { MdPreview } from 'md-editor-v3'
+import 'md-editor-v3/lib/preview.css'
+import { Compass } from '@element-plus/icons-vue'
+
+defineProps<{
+  title: string
+  essence: string
+  insights?: string
+  difficulty: number
+  importance: string
+}>()
+
+const isFlipped = ref(false)
+
+defineExpose({
+  reset: () => isFlipped.value = false
+})
+</script>
+
+<style scoped>
+.card-container {
+  perspective: 2000px;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+/* 彻底解决暗色模式下背景突兀的问题 */
+:deep(.md-editor-preview) {
+  padding: 0 !important;
+  background-color: transparent !important;
+  color: #f8fafc !important; /* 强制极浅灰色文字，提高对比度 */
+}
+
+:deep(.md-editor-preview-wrapper) {
+  padding: 0 !important;
+}
+
+/* Markdown 内部排版优化 */
+:deep(.prose-invert p) {
+  color: #f1f5f9 !important;
+  font-size: 1.125rem; /* 增大字号 */
+  line-height: 1.75;
+}
+
+/* 自定义滚动条 */
+.custom-content-dark::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-content-dark::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+</style>
+</file>
+
+<file path="src/store/appStore.ts">
+import { defineStore } from 'pinia'
+
+export const useAppStore = defineStore('app', {
+  state: () => ({
+    currentSubjectId: null as number | null,
+    currentSubjectName: '' as string,
+    currentCategoryId: null as number | null,   // 新增：当前章节ID
+    currentCategoryName: '' as string,         // 新增：当前章节名称
+    themeColor: '#1890ff',
+  }),
+  actions: {
+    setSubject(id: number, name: string, color?: string) {
+      this.currentSubjectId = id
+      this.currentSubjectName = name
+      this.currentCategoryId = null // 切换科目时清空章节
+      if (color) this.themeColor = color
+      document.documentElement.style.setProperty('--primary-color', color || '#1890ff')
+    },
+    // 新增：设置当前章节
+    setCategory(id: number, name: string) {
+      this.currentCategoryId = id
+      this.currentCategoryName = name
+    }
+  }
+})
+</file>
+
+<file path="src/views/Home.vue">
+<template>
+  <div class="min-h-screen bg-slate-50 flex flex-col">
+    <!-- 顶部导航 -->
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 px-8 py-4 flex justify-between items-center border-b border-slate-100">
+      <div class="flex items-center gap-2">
+        <div class="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-200">
+          <el-icon class="text-white" :size="20"><Cpu /></el-icon>
+        </div>
+        <span class="font-black text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500">
+          Polymath Hub
+        </span>
+      </div>
+      <el-button link :icon="Setting" @click="router.push('/admin/kb')" class="font-bold text-indigo-600">
+        进入工作台
+      </el-button>
+    </nav>
+
+    <!-- 主体内容 -->
+    <main class="flex-1 max-w-7xl mx-auto w-full p-8 md:p-12">
+      <header class="mb-12">
+        <h2 class="text-4xl font-extrabold text-slate-900 tracking-tight">
+          你好, 探索者 🧠
+        </h2>
+        <p class="text-slate-500 mt-3 text-lg max-w-2xl">
+          构建你的第二大脑。管理灵感、学习技能并利用间隔复习系统将其转化为永久记忆。
+        </p>
+      </header>
+
+      <!-- 知识库卡片网格 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div 
+          v-for="sub in subjects" :key="sub.id"
+          class="bg-white rounded-3xl p-8 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all cursor-pointer border border-slate-100 flex flex-col group relative overflow-hidden"
+          @click="startStudy(sub)"
+        >
+          <!-- 背景装饰：渐变圆点 (可选) -->
+          <div class="absolute -right-4 -top-4 w-24 h-24 bg-slate-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+
+          <div class="flex justify-between items-start mb-8 relative z-10">
+            <div 
+              class="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-xl transition-transform group-hover:scale-110"
+              :style="{ backgroundColor: sub.theme_color || '#6366f1' }"
+            >
+              <!-- 动态图标组件 -->
+              <el-icon :size="28">
+                <component :is="getIcon(sub.icon_type)" />
+              </el-icon>
+            </div>
+            <div class="flex flex-col items-end gap-2">
+              <el-tag :type="sub.visibility === 'public' ? 'success' : 'info'" round effect="light" size="small">
+                {{ sub.visibility === 'public' ? '公开' : '私有' }}
+              </el-tag>
+            </div>
+          </div>
+          
+          <h3 class="text-2xl font-bold text-slate-800 group-hover:text-indigo-600 transition-colors mb-2 relative z-10">
+            {{ sub.name }}
+          </h3>
+          <p class="text-slate-400 text-sm line-clamp-2 flex-1 leading-relaxed relative z-10">
+            {{ sub.description || '点击开始探索此领域的深层知识。' }}
+          </p>
+          
+          <div class="mt-8 flex items-center justify-between pt-6 border-t border-slate-50 relative z-10">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-indigo-500 transition-colors">
+              进入学习空间
+            </span>
+            <div class="bg-slate-100 p-2 rounded-full group-hover:bg-indigo-600 group-hover:text-white transition-all">
+              <el-icon><ArrowRight /></el-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- 快速添加卡片 -->
+        <div 
+          class="border-3 border-dashed border-slate-200 rounded-3xl p-8 flex flex-col items-center justify-center text-slate-400 hover:border-indigo-400 hover:text-indigo-500 hover:bg-indigo-50/30 transition-all cursor-pointer group"
+          @click="router.push('/admin/kb')"
+        >
+          <div class="bg-slate-100 p-4 rounded-full group-hover:bg-indigo-100 transition-colors">
+            <el-icon :size="32"><Plus /></el-icon>
+          </div>
+          <span class="mt-4 font-bold tracking-wide">创建新知识库</span>
+        </div>
+      </div>
+    </main>
+
+    <footer class="p-12 text-center text-slate-400 text-sm border-t border-slate-100 bg-white mt-auto">
+      <div class="flex justify-center gap-6 mb-4">
+        <span class="hover:text-indigo-500 cursor-pointer transition-colors">使用指南</span>
+        <span class="hover:text-indigo-500 cursor-pointer transition-colors">复习算法</span>
+        <span class="hover:text-indigo-500 cursor-pointer transition-colors">关于 Polymath</span>
+      </div>
+      <p>越努力 越幸运 | 你的第 {{ subjects.length }} 个知识库已就绪</p>
+    </footer>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { 
+  Cpu, Setting, ArrowRight, Plus, 
+  Reading, Monitor, Coffee, Key, Opportunity, Collection 
+} from '@element-plus/icons-vue'
+import { subjectApi, type Subject } from '../api/subject'
+import { useAppStore } from '../store/appStore'
+
+const router = useRouter()
+const appStore = useAppStore()
+const subjects = ref<Subject[]>([])
+
+// 定义图标映射表，将数据库中的字符串 key 映射为组件
+const iconMap: any = { 
+  Book: Reading, 
+  Code: Monitor, 
+  Life: Coffee, 
+  Core: Key, 
+  Growth: Opportunity,
+  Collection: Collection 
+}
+
+const getIcon = (type: string | undefined | null) => {
+  if (!type) return Collection
+  return iconMap[type] || Collection
+}
+
+onMounted(async () => {
+  try {
+    const res = await subjectApi.list()
+    subjects.value = res as any
+  } catch (error) {
+    console.error('加载知识库失败', error)
+  }
+})
+
+const startStudy = (sub: Subject) => {
+  // 设置 Store：现在使用更通用的术语
+  appStore.setSubject(sub.id, sub.name, sub.theme_color)
+  // 跳转到复习模式
+  router.push('/study')
+}
+</script>
+
+<style scoped>
+/* 自定义虚线边框宽度 */
+.border-3 {
+  border-width: 3px;
+}
+
+/* 简单的进入动画 */
+main {
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</file>
+
+<file path="src/api/subject.ts">
+import api from './index'
+
+export interface Subject {
+  id: number;
+  name: string;
+  description?: string;
+  theme_color?: string;
+  icon_type?: string;
+  visibility?: string;
+}
+
+export const subjectApi = {
+  list: () => api.get<Subject[]>('/subjects'),
+  create: (data: Partial<Subject>) => api.post<Subject>('/subjects', data),
+  delete: (id: number) => api.delete(`/subjects/${id}`)
+}
+</file>
+
+<file path="src/router/index.ts">
+import { createRouter, createWebHistory } from 'vue-router';
+import Home from '../views/Home.vue'; 
+import KnowledgeBase from '../views/admin/KnowledgeBase.vue';
+import Login from '../views/auth/Login.vue';
+import StudyMode from '../views/study/StudyMode.vue';
+import { useUserStore } from '../store/userStore';
+
+const router = createRouter({
+    history: createWebHistory(),
+    routes: [
+        {
+            path: '/',
+            name: 'Home',
+            component: Home
+        },
+        {
+            path: '/admin/kb',
+            name: 'KnowledgeBase',
+            component: KnowledgeBase
+        },
+        {
+            path: '/study',
+            name: 'Study',
+            component: StudyMode
+        },
+        {
+            path: '/print',
+            name: 'Print',
+            component: () => import('../views/admin/PrintView.vue')
+        },
+        {
+            path: '/login',
+            name: 'Login',
+            component: Login
+        }
+    ]
+});
+
+router.beforeEach((to, _from, next) => {
+  const userStore = useUserStore();
+  // 排除登录页，其他页面均需登录
+  if (to.path !== '/login' && !userStore.isLoggedIn) {
+    next('/login');
+  } else {
+    next();
+  }
+});
+
+export default router;
+</file>
+
+<file path="src/views/admin/KnowledgeBase.vue">
+<template>
+  <div class="flex h-screen bg-gray-100 overflow-hidden text-gray-700 font-sans">
+    <!-- 1. 最左侧：知识空间导航 (科目) -->
+    <div class="w-64 bg-slate-900 text-white flex flex-col shadow-xl">
+      <!-- 顶部：返回首页入口 -->
+      <div class="p-5 flex justify-between items-center border-b border-slate-800">
+        <div 
+          class="flex items-center gap-2 cursor-pointer hover:text-indigo-400 transition-all group"
+          @click="router.push('/')"
+        >
+          <el-icon class="group-hover:scale-110 transition-transform" :size="20"><HomeFilled /></el-icon>
+          <h1 class="font-black text-sm tracking-widest uppercase">返回首页</h1>
+        </div>
+        <el-button :icon="Plus" circle size="small" @click="openSubjectCreator" />
+      </div>
+
+      <!-- 中间：科目列表内容 -->
+      <div class="flex-1 overflow-y-auto py-2 custom-scrollbar">
+        <div 
+          v-for="sub in subjects" :key="sub.id"
+          @click="selectSubject(sub)"
+          :class="['px-5 py-4 cursor-pointer transition-all flex items-center justify-between border-l-4 group', 
+                    appStore.currentSubjectId === sub.id ? 'bg-slate-800 border-indigo-500 text-white' : 'border-transparent text-slate-400 hover:text-white hover:bg-slate-800']"
+        >
+          <div class="flex items-center gap-3 truncate">
+             <el-icon :size="18" :style="{ color: sub.theme_color }">
+               <component :is="iconMap[sub.icon_type || 'Collection']" />
+             </el-icon>
+             <span class="text-sm font-medium truncate">{{ sub.name }}</span>
+          </div>
+          <el-icon 
+            class="opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all" 
+            :size="14" 
+            @click.stop="handleDeleteSubject(sub.id)"
+          ><Delete /></el-icon>
+        </div>
+      </div>
+
+      <!-- 底部：用户信息与退出 -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/20">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 truncate">
+            <el-avatar :size="24" class="bg-indigo-600 text-[10px] font-bold">
+              {{ (userStore.userInfo?.username || 'User').substring(0, 2).toUpperCase() }}
+            </el-avatar>
+            <span class="text-xs text-slate-300 truncate">{{ userStore.userInfo?.username || '未登录' }}</span>
+          </div>
+          <el-tooltip content="退出系统" placement="top">
+            <el-button link type="danger" :icon="SwitchButton" @click="handleLogout" />
+          </el-tooltip>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 中间：目录大纲 (章节) -->
+    <div class="w-80 bg-white border-r flex flex-col shadow-sm">
+      <div class="p-5 border-b flex justify-between items-center bg-gray-50/50">
+        <span class="font-bold text-gray-600 flex items-center gap-2">
+          <el-icon><Fold /></el-icon> 目录大纲
+        </span>
+        <el-button v-if="appStore.currentSubjectId" link :icon="Plus" @click="prepareAddCategory(null)">主分类</el-button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-2">
+        <el-tree
+          v-if="appStore.currentSubjectId"
+          :data="categoryTree"
+          node-key="id"
+          @node-click="handleNodeClick"
+          highlight-current
+          :expand-on-click-node="false"
+          default-expand-all
+        >
+          <template #default="{ data }">
+            <div class="flex-1 flex items-center justify-between text-sm group pr-2 truncate">
+              <span class="truncate">{{ data.name }}</span>
+              <div class="flex gap-1">
+                <el-icon 
+                  class="hidden group-hover:block text-indigo-500 hover:scale-125 transition-transform" 
+                  @click.stop="prepareAddCategory(data.id)"
+                ><Plus /></el-icon>
+                <el-icon 
+                  class="hidden group-hover:block text-red-300 hover:text-red-500 hover:scale-125 transition-transform" 
+                  @click.stop="handleDeleteCategory(data.id)"
+                ><Delete /></el-icon>
+              </div>
+            </div>
+          </template>
+        </el-tree>
+        <div v-else class="h-full flex flex-col items-center justify-center text-gray-400 text-xs px-10 text-center space-y-3">
+          <el-icon :size="32" class="opacity-20"><Files /></el-icon>
+          <p>请选择左侧科目以加载知识体系</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 右侧：内容管理区 (卡片) -->
+    <div class="flex-1 flex flex-col bg-gray-50 overflow-hidden">
+      <header v-if="currentCategoryId" class="bg-white p-6 border-b flex justify-between items-center shadow-sm relative z-10">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-xl font-bold text-gray-800">{{ currentCategoryName }}</h2>
+            <el-tag size="small" effect="plain" round>{{ cards.length }} 卡片</el-tag>
+          </div>
+          <p class="text-xs text-gray-400 mt-1">组织与优化该节点的知识精华</p>
+        </div>
+        <div class="flex gap-3">
+          <el-button type="info" plain :icon="Printer" @click="router.push('/print')">导出讲义</el-button>
+          <el-button type="success" :icon="Postcard" @click="goToStudy">复习模式</el-button>
+          <el-button type="primary" :icon="Plus" @click="openCardEditor">新建卡片</el-button>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto p-6">
+        <div v-if="currentCategoryId">
+          <div v-if="cards.length > 0" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <el-card 
+              v-for="card in cards" :key="card.id" 
+              shadow="hover" 
+              class="border-none rounded-xl relative group hover:ring-2 hover:ring-indigo-500/20 transition-all cursor-pointer"
+              @click="handleEditCard(card)"
+            >
+              <template #header>
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center gap-2 truncate">
+                    <el-icon v-if="card.card_type === 'code'" class="text-orange-500"><Monitor /></el-icon>
+                    <el-icon v-else-if="card.card_type === 'note'" class="text-blue-500"><Memo /></el-icon>
+                    <span class="font-bold truncate text-gray-700">{{ card.title }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <el-button 
+                      class="hidden group-hover:block" 
+                      link type="danger" 
+                      :icon="Delete" 
+                      @click.stop="handleDeleteCard(card.id!)" 
+                    />
+                    <el-tag :type="card.importance === 'A' ? 'danger' : 'info'" effect="dark" size="small">
+                      {{ card.importance }}级
+                    </el-tag>
+                  </div>
+                </div>
+              </template>
+              <div class="text-sm text-gray-500 line-clamp-3 min-h-[60px] leading-relaxed italic">
+                {{ card.essence }}
+              </div>
+              <div class="mt-4 pt-4 border-t flex justify-between items-center">
+                <el-rate :model-value="card.difficulty" disabled size="small" />
+                <span class="text-[10px] text-gray-400 font-mono tracking-tighter uppercase">Next: {{ card.next_review_date || 'New' }}</span>
+              </div>
+            </el-card>
+          </div>
+          <div v-else class="h-64 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl bg-white">
+            <el-icon class="text-gray-200" :size="48"><Postcard /></el-icon>
+            <p class="text-gray-400 mt-4 font-medium">该目录下还没有知识记录</p>
+            <el-button type="primary" link class="mt-2" @click="openCardEditor">立即创建第一张卡片</el-button>
+          </div>
+        </div>
+        <div v-else class="h-full flex flex-col items-center justify-center text-gray-400 animate-pulse space-y-4">
+          <el-icon :size="64" class="opacity-10"><Memo /></el-icon>
+          <p class="tracking-widest text-sm uppercase font-bold text-gray-300">Focus on your knowledge</p>
+          <el-button v-if="appStore.currentSubjectId" type="info" plain class="mt-6" :icon="Printer" @click="router.push('/print')">导出全科目讲义</el-button>
+        </div>
+      </main>
+    </div>
+
+    <!-- 弹窗：新建知识空间 -->
+    <el-dialog v-model="showAddSubject" title="知识空间管理" width="450px" destroy-on-close>
+      <el-form :model="subjectForm" label-position="top">
+        <el-form-item label="名称" required>
+          <el-input v-model="subjectForm.name" placeholder="如：CPA 会计精华" />
+        </el-form-item>
+        <div class="grid grid-cols-2 gap-4">
+          <el-form-item label="图标">
+            <el-select v-model="subjectForm.icon_type">
+              <el-option v-for="(_, key) in iconMap" :key="key" :label="key" :value="key" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="可见性">
+            <el-select v-model="subjectForm.visibility">
+              <el-option label="私有" value="private" />
+              <el-option label="公开" value="public" />
+            </el-select>
+          </el-form-item>
+        </div>
+        <el-form-item label="主题色">
+          <el-color-picker v-model="subjectForm.theme_color" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showAddSubject = false">取消</el-button>
+        <el-button type="primary" @click="handleSaveSubject">保存空间</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 弹窗：新增目录 -->
+    <el-dialog v-model="showAddCategory" title="目录节点管理" width="400px">
+      <el-form :model="categoryForm" label-position="top">
+        <el-form-item label="标题" required>
+          <el-input v-model="categoryForm.name" placeholder="输入目录名称" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showAddCategory = false">取消</el-button>
+        <el-button type="primary" @click="handleSaveCategory">确认</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 弹窗：知识卡片编辑器 -->
+    <el-dialog v-model="showCardEditor" :title="editingCardId ? '编辑知识节点' : '新建知识卡片'" width="85%" top="5vh" destroy-on-close>
+      <el-form :model="cardForm" label-position="top">
+        <div class="grid grid-cols-12 gap-8">
+          <div class="col-span-8 space-y-6">
+            <el-form-item label="节点标题" required>
+              <el-input v-model="cardForm.title" placeholder="输入知识点名称" size="large" />
+            </el-form-item>
+            <el-form-item label="正面内容">
+              <MdEditor v-model="cardForm.essence" height="300px" />
+            </el-form-item>
+            <el-form-item label="背面解析">
+              <MdEditor v-model="cardForm.insights" height="200px" />
+            </el-form-item>
+          </div>
+          <div class="col-span-4 bg-gray-50 p-6 rounded-xl space-y-8 border border-gray-100">
+            <el-form-item label="卡片类型">
+               <el-radio-group v-model="cardForm.card_type" fill="#4f46e5">
+                <el-radio-button value="qa">问答</el-radio-button>
+                <el-radio-button value="note">笔记</el-radio-button>
+                <el-radio-button value="code">代码</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="熟悉程度">
+              <el-rate v-model="cardForm.difficulty" :texts="['陌生', '入门', '中等', '熟练', '精通']" show-text />
+            </el-form-item>
+            <el-form-item label="重要程度">
+              <el-radio-group v-model="cardForm.importance">
+                <el-radio-button value="A">核心</el-radio-button>
+                <el-radio-button value="B">常用</el-radio-button>
+                <el-radio-button value="C">边缘</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="复习间隔 (天)">
+              <el-input-number v-model="cardForm.interval_days" :min="1" />
+            </el-form-item>
+            <div class="pt-10">
+               <el-button type="primary" size="large" class="w-full shadow-lg" @click="handleSaveCard">
+                 {{ editingCardId ? '更新并保存' : '保存新节点' }}
+               </el-button>
+               <el-button size="large" class="w-full mt-4" @click="showCardEditor = false">取消</el-button>
+            </div>
+          </div>
+        </div>
+      </el-form>
+    </el-dialog>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
+import { 
+  Plus, Postcard, Fold, Files, Memo, Printer, Delete, HomeFilled, SwitchButton,
+  Reading, Monitor, Coffee, Key, Opportunity, Collection 
+} from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { MdEditor } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+
+import { subjectApi, type Subject } from '../../api/subject'
+import { categoryApi, type Category } from '../../api/category'
+import { cardApi, type Card } from '../../api/card'
+import { useAppStore } from '../../store/appStore'
+import { useUserStore } from '../../store/userStore'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const appStore = useAppStore()
+const userStore = useUserStore()
+
+// 图标映射
+const iconMap: any = { Book: Reading, Code: Monitor, Life: Coffee, Core: Key, Growth: Opportunity, Collection: Collection }
+
+// 基础数据
+const subjects = ref<Subject[]>([])
+const categories = ref<Category[]>([])
+const cards = ref<Card[]>([])
+
+// 状态控制
+const currentCategoryId = ref<number | null>(null)
+const currentCategoryName = ref('')
+const editingCardId = ref<number | null>(null)
+
+const showAddSubject = ref(false)
+const showAddCategory = ref(false)
+const showCardEditor = ref(false)
+
+// 表单数据
+const subjectForm = ref({ name: '', description: '', theme_color: '#6366f1', icon_type: 'Book', visibility: 'private' })
+const categoryForm = ref({ name: '', parent_id: null as number | null })
+const cardForm = ref({ title: '', essence: '', insights: '', difficulty: 3, importance: 'B', interval_days: 1, card_type: 'qa' })
+
+// --- 加载数据 ---
+const loadSubjects = async () => {
+  try {
+    const res = await subjectApi.list()
+    subjects.value = res as any
+  } catch (error) {
+    console.error('加载科目失败', error)
+  }
+}
+
+onMounted(() => loadSubjects())
+
+// --- 科目操作 ---
+const selectSubject = async (sub: Subject) => {
+  appStore.setSubject(sub.id, sub.name, sub.theme_color)
+  currentCategoryId.value = null
+  cards.value = []
+  const res = await categoryApi.listBySubject(sub.id)
+  categories.value = res as any
+}
+
+const openSubjectCreator = () => {
+  subjectForm.value = { name: '', description: '', theme_color: '#6366f1', icon_type: 'Book', visibility: 'private' }
+  showAddSubject.value = true
+}
+
+const handleSaveSubject = async () => {
+  if (!subjectForm.value.name) return
+  await subjectApi.create(subjectForm.value)
+  ElMessage.success('知识空间已创建')
+  showAddSubject.value = false
+  loadSubjects()
+}
+
+const handleDeleteSubject = async (id: number) => {
+  try {
+    await ElMessageBox.confirm('删除该科目将连带清空旗下所有章节与卡片！确定吗？', '严峻警告', { type: 'error' })
+    await subjectApi.delete(id)
+    ElMessage.success('科目已移除')
+    if (appStore.currentSubjectId === id) appStore.currentSubjectId = null
+    loadSubjects()
+  } catch {}
+}
+
+// --- 目录操作 ---
+const categoryTree = computed(() => {
+  const map: any = {}
+  const tree: any[] = []
+  categories.value.forEach(cat => map[cat.id] = { ...cat, children: [] })
+  categories.value.forEach(cat => {
+    if (cat.parent_id) {
+      map[cat.parent_id]?.children.push(map[cat.id])
+    } else {
+      tree.push(map[cat.id])
+    }
+  })
+  return tree
+})
+
+const handleNodeClick = (data: any) => {
+  currentCategoryId.value = data.id
+  currentCategoryName.value = data.name
+  appStore.setCategory(data.id, data.name) 
+  loadCards()
+}
+
+const loadCards = async () => {
+  if (!currentCategoryId.value) return
+  const res = await cardApi.listByCategory(currentCategoryId.value)
+  cards.value = res as any
+}
+
+const prepareAddCategory = (parentId: number | null) => {
+  categoryForm.value = { name: '', parent_id: parentId }
+  showAddCategory.value = true
+}
+
+const handleSaveCategory = async () => {
+  if (!appStore.currentSubjectId || !categoryForm.value.name) return
+  await categoryApi.create({ ...categoryForm.value, subject_id: appStore.currentSubjectId })
+  ElMessage.success('目录结构已更新')
+  showAddCategory.value = false
+  const res = await categoryApi.listBySubject(appStore.currentSubjectId)
+  categories.value = res as any
+}
+
+const handleDeleteCategory = async (id: number) => {
+  try {
+    await ElMessageBox.confirm('删除此节点及其下所有卡片？', '确认', { type: 'warning' })
+    await categoryApi.delete(id)
+    ElMessage.success('章节已移除')
+    if (appStore.currentSubjectId) {
+       const res = await categoryApi.listBySubject(appStore.currentSubjectId)
+       categories.value = res as any
+    }
+  } catch {}
+}
+
+// --- 卡片操作 ---
+const openCardEditor = () => {
+  editingCardId.value = null
+  cardForm.value = { title: '', essence: '', insights: '', difficulty: 3, importance: 'B', interval_days: 1, card_type: 'qa' }
+  showCardEditor.value = true
+}
+
+const handleEditCard = (card: Card) => {
+  editingCardId.value = card.id!
+  cardForm.value = { 
+    title: card.title, essence: card.essence || '', insights: card.insights || '', 
+    difficulty: card.difficulty, importance: card.importance, interval_days: card.interval_days, card_type: card.card_type || 'qa'
+  }
+  showCardEditor.value = true
+}
+
+const handleSaveCard = async () => {
+  if (!cardForm.value.title || !currentCategoryId.value) return
+  if (editingCardId.value) {
+    await cardApi.update(editingCardId.value, cardForm.value)
+    ElMessage.success('知识节点已同步')
+  } else {
+    await cardApi.create({ ...cardForm.value, category_id: currentCategoryId.value })
+    ElMessage.success('新知识点已录入')
+  }
+  showCardEditor.value = false
+  loadCards()
+}
+
+const handleDeleteCard = async (id: number) => {
+  try {
+    await ElMessageBox.confirm('确定删除此知识卡片吗？', '确认', { type: 'warning' })
+    await cardApi.delete(id)
+    ElMessage.success('卡片已清理')
+    loadCards()
+  } catch {}
+}
+
+// --- 系统导航 ---
+const handleLogout = () => {
+  ElMessageBox.confirm('确定要退出 Polymath 系统吗？', '注销', { type: 'warning' }).then(() => {
+    userStore.logout()
+    router.push('/login')
+    ElMessage.info('已退出登录')
+  }).catch(() => {})
+}
+
+const goToStudy = () => {
+  if (cards.value.length === 0) { ElMessage.warning('该分类暂无卡片'); return }
+  router.push('/study')
+}
+</script>
+
+<style scoped>
+:deep(.el-tree-node__content) {
+  height: 40px;
+  border-radius: 8px;
+  margin: 4px 0;
+  transition: all 0.2s;
+}
+:deep(.el-tree-node.is-current > .el-tree-node__content) {
+  background-color: #eef2ff !important;
+  color: #4f46e5;
+  font-weight: 600;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 10px;
+}
+</style>
+</file>
+
+<file path="src/views/study/StudyMode.vue">
+<template>
+  <div class="min-h-screen bg-slate-50 flex flex-col items-center p-6">
+    <!-- 顶部导航 -->
+    <div class="w-full max-w-4xl flex justify-between items-center mb-8">
+      <el-button :icon="ArrowLeft" circle @click="router.back()" />
+      <div class="text-center">
+        <h1 class="font-bold text-xl">{{ appStore.currentSubjectName || '复习模式' }}</h1>
+        <p class="text-sm text-gray-500">
+          剩余任务: {{ cards.length > 0 ? (cards.length - currentIndex) : 0 }} / {{ cards.length }}
+        </p>
+      </div>
+      <el-button :icon="Setting" circle />
+    </div>
+
+    <!-- 进度条 - 修复 NaN 和类型 -->
+    <div class="w-full max-w-2xl mb-8">
+      <el-progress 
+        :percentage="isNaN(progress) ? 0 : progress" 
+        :show-text="false" 
+        :stroke-width="8" 
+      />
+    </div>
+
+    <!-- 卡片主体 -->
+    <div v-if="currentCard" class="w-full flex justify-center">
+      <FlashCard 
+        ref="cardRef"
+        :key="currentCard.id"
+        v-bind="currentCard"
+      />
+    </div>
+
+    <!-- 完成态 -->
+    <div v-else-if="cards.length > 0 && currentIndex >= cards.length" class="text-center py-20">
+      <el-result icon="success" title="复习达成" sub-title="每天的积累都是通往卓越的阶梯">
+        <template #extra>
+          <el-button type="primary" @click="router.back()">返回知识库</el-button>
+        </template>
+      </el-result>
+    </div>
+
+    <!-- 操作栏 -->
+    <div v-if="currentCard" class="mt-12 flex gap-6">
+      <el-button-group>
+        <el-button type="danger" size="large" @click="handleReview(1)">太难了 (1天后)</el-button>
+        <el-button type="warning" size="large" @click="handleReview(3)">模糊 (3天后)</el-button>
+        <el-button type="success" size="large" @click="handleReview(7)">简单 (7天后)</el-button>
+      </el-button-group>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { ArrowLeft, Setting } from '@element-plus/icons-vue'
+import FlashCard from '../../components/FlashCard.vue'
+import { cardApi, type Card } from '../../api/card'
+import { useAppStore } from '../../store/appStore'
+import { ElMessage } from 'element-plus'
+
+const router = useRouter()
+const appStore = useAppStore()
+const cards = ref<Card[]>([])
+const currentIndex = ref(0)
+const cardRef = ref()
+
+const currentCard = computed(() => cards.value[currentIndex.value])
+
+// 修复点 1: 在 script 逻辑中使用 cards.value.length
+const progress = computed(() => {
+  if (cards.value.length === 0) return 0
+  return Math.round((currentIndex.value / cards.value.length) * 100)
+})
+
+onMounted(async () => {
+  if (!appStore.currentSubjectId) {
+    ElMessage.warning('请先选择科目')
+    router.push('/')
+    return
+  }
+
+  try {
+    let res;
+    if (appStore.currentCategoryId) {
+      res = await cardApi.listByCategory(appStore.currentCategoryId)
+    } else {
+      res = await cardApi.listBySubject(appStore.currentSubjectId)
+    }
+    
+    // 修复点 2: 显式断言或确保 res 类型正确
+    cards.value = res as unknown as Card[]
+    
+    if (cards.value.length === 0) {
+      ElMessage.info('暂无需要复习的卡片')
+      router.back()
+    }
+  } catch (e) {
+    console.error('加载卡片失败', e)
+  }
+})
+
+const handleReview = async (days: number) => {
+  if (!currentCard.value?.id) return
+  
+  try {
+    await cardApi.review(currentCard.value.id, days)
+    
+    // 修复点 3: 逻辑判断使用 .value
+    if (currentIndex.value < cards.value.length) {
+      cardRef.value?.reset()
+      currentIndex.value++
+    }
+  } catch (error) {
+    ElMessage.error('提交进度失败')
+  }
+}
+</script>
+</file>
+
+<file path="src/api/card.ts">
+import api from './index'
+
+export interface Card {
+  id?: number;
+  category_id: number;
+  title: string;
+  essence: string;
+  insights?: string;
+  difficulty: number;
+  importance: string;
+  interval_days: number;
+  card_type?: string;
+  next_review_date?: string;
+}
+
+export const cardApi = {
+  // 1. 获取章节下的卡片
+  listByCategory: (catId: number) =>
+    api.get<Card[]>(`/cards?category_id=${catId}`),
+
+  // 新增：按科目获取卡片
+  listBySubject: (subjectId: number) =>
+    api.get<Card[]>(`/cards/by_subject?subject_id=${subjectId}`),
+
+  // 2. 创建卡片
+  create: (data: Partial<Card>) =>
+    api.post<Card>('/cards', data),
+
+  // 3. 全局搜索
+  search: (keyword: string) =>
+    api.get<Card[]>(`/cards/search?keyword=${keyword}`),
+
+  /**
+   * 4. 提交复习进度 (新增这个方法)
+   * 对接后端: PATCH /api/cards/:id/review
+   */
+  review: (id: number, intervalDays: number) =>
+    api.patch(`/cards/${id}/review`, { interval_days: intervalDays }),
+
+  update: (id: number, data: Partial<Card>) =>
+    api.put<Card>(`/cards/${id}`, data),
+
+  delete: (id: number) => api.delete(`/cards/${id}`),
+}
 </file>
 
 </files>
