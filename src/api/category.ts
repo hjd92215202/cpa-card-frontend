@@ -12,4 +12,5 @@ export const categoryApi = {
   listBySubject: (subjectId: number) => 
     api.get<Category[]>(`/categories?subject_id=${subjectId}`),
   create: (data: Partial<Category>) => api.post<Category>('/categories', data),
+  delete: (id: number) => api.delete(`/categories/${id}`)
 }

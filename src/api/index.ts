@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
+import { useUserStore } from '../store/userStore';
 
 const api = axios.create({
   // Rust 后端地址
@@ -7,15 +8,27 @@ const api = axios.create({
   timeout: 5000,
 });
 
-// 响应拦截器：统一处理错误提示
+// 请求拦截：注入 Token
+api.interceptors.request.use((config) => {
+  const userStore = useUserStore();
+  if (userStore.token) {
+    config.headers.Authorization = `Bearer ${userStore.token}`;
+  }
+  return config;
+});
+
+// 响应拦截：处理 401 过期
 api.interceptors.response.use(
-  (response) => {
-    // 直接返回数据部分
-    return response.data;
-  },
+  (response) => response.data,
   (error) => {
-    const message = error.response?.data?.error || '请求失败';
-    ElMessage.error(message);
+    if (error.response?.status === 401) {
+      const userStore = useUserStore();
+      userStore.logout();
+      ElMessage.error('登录已过期，请重新登录');
+    } else {
+      const message = error.response?.data?.error || '请求失败';
+      ElMessage.error(message);
+    }
     return Promise.reject(error);
   }
 );

@@ -12,4 +12,5 @@ export interface Subject {
 export const subjectApi = {
   list: () => api.get<Subject[]>('/subjects'),
   create: (data: Partial<Subject>) => api.post<Subject>('/subjects', data),
+  delete: (id: number) => api.delete(`/subjects/${id}`)
 }
