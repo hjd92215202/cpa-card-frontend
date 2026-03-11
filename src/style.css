@@ -1,6 +1,21 @@
 @import "tailwindcss";
 
-/* 这里可以写你的全局样式 */
 :root {
-  --el-color-primary: #1890ff;
+  --el-color-primary: #4f46e5; /* 统一使用 Indigo 600 作为主色 */
+  --el-border-radius-base: 12px;
+}
+
+body {
+  margin: 0;
+  background-color: #f8fafc;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* 现代无衬线字体族 */
+  font-family: "Inter var", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+/* 优化 Element Plus 的默认阴影 */
+.el-card {
+  --el-card-border-color: rgba(226, 232, 240, 0.6);
+  --el-card-border-radius: 20px;
 }
