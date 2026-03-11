@@ -4,46 +4,55 @@
     @click="isFlipped = !isFlipped"
   >
     <div :class="['card-inner', isFlipped ? 'is-flipped' : '']">
-      <!-- 【正面】：保持简洁 -->
-      <div class="card-face card-front p-10 flex flex-col shadow-2xl rounded-[2.5rem] border border-slate-100 bg-white relative overflow-hidden">
+      
+      <!-- 【正面】：高对比度、清晰 -->
+      <div class="card-face card-front p-10 flex flex-col shadow-2xl rounded-[2.5rem] border border-slate-200 bg-white relative overflow-hidden">
+        <!-- 装饰背景 -->
         <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-50 rounded-full opacity-60"></div>
-        <div class="flex justify-between items-center mb-8 relative z-10">
+        
+        <div class="flex justify-between items-center mb-6 relative z-10">
           <el-tag effect="dark" class="border-none bg-blue-600 px-4 rounded-full font-bold">
             {{ importance }}级考点
           </el-tag>
           <el-rate :model-value="difficulty" disabled />
         </div>
-        <h2 class="text-4xl font-black text-slate-800 mb-8 text-center">{{ title }}</h2>
+        
+        <h2 class="text-3xl font-black text-slate-800 mb-6 text-center leading-tight">{{ title }}</h2>
+        
+        <!-- 内容区域：强制深色文字 -->
         <div class="flex-1 overflow-y-auto custom-content prose prose-slate max-w-none">
-          <MdPreview :modelValue="essence" theme="light" />
+          <MdPreview 
+            :modelValue="essence" 
+            theme="light" 
+            class="md-preview-light"
+          />
         </div>
-        <div class="mt-6 text-center text-slate-300 text-xs font-bold tracking-widest animate-bounce">
-          CLICK TO REVEAL INSIGHTS 👆
+        
+        <div class="mt-6 text-center text-slate-400 text-[10px] font-bold tracking-[0.2em] animate-pulse uppercase">
+          点击翻看心得记录 👆
         </div>
       </div>
 
-      <!-- 【背面】：光感/通透/易读 -->
-      <div class="card-face card-back p-10 flex flex-col shadow-2xl rounded-[2.5rem] bg-[#0f172a] text-white relative overflow-hidden">
-        <!-- 核心装饰：右上角的光晕 -->
+      <!-- 【背面】：光感、深邃、清晰 -->
+      <div class="card-face card-back p-10 flex flex-col shadow-2xl rounded-[2.5rem] bg-[#0f172a] text-white relative overflow-hidden border border-slate-800">
+        <!-- 背景光晕 -->
         <div class="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/20 blur-[80px] rounded-full"></div>
         <div class="absolute -left-20 -bottom-20 w-60 h-60 bg-blue-500/10 blur-[60px] rounded-full"></div>
         
-        <!-- 顶部标签 -->
-        <div class="relative z-10 flex items-center gap-3 mb-8">
-          <div class="bg-indigo-500 p-2 rounded-lg shadow-lg shadow-indigo-500/40">
+        <div class="relative z-10 flex items-center gap-3 mb-6">
+          <div class="bg-indigo-500 p-2 rounded-lg shadow-lg shadow-indigo-500/30">
             <el-icon :size="18" color="white"><Compass /></el-icon>
           </div>
           <span class="text-indigo-300 font-black text-xs uppercase tracking-widest">Mastery Insights</span>
         </div>
         
         <!-- 内容区域：毛玻璃容器 -->
-        <div class="relative z-10 flex-1 overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 flex flex-col shadow-inner">
+        <div class="relative z-10 flex-1 overflow-hidden bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-6 flex flex-col shadow-inner">
           <div class="flex-1 overflow-y-auto custom-content-dark prose prose-invert max-w-none">
-            <!-- 强制文字更白、更大 -->
             <MdPreview 
               :modelValue="insights || '此考点暂无心得记录...'" 
               theme="dark" 
-              class="!bg-transparent !text-slate-100 text-lg leading-relaxed" 
+              class="md-preview-dark !bg-transparent" 
             />
           </div>
         </div>
@@ -51,11 +60,11 @@
         <!-- 底部装饰 -->
         <div class="relative z-10 mt-6 flex justify-between items-center px-2">
           <div class="flex flex-col">
-            <span class="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">Knowledge Node</span>
-            <span class="text-[10px] text-indigo-400 font-mono italic">#CPA_Exam_Ready</span>
+            <span class="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">CPA Knowledge Node</span>
+            <span class="text-[9px] text-indigo-400 font-mono italic opacity-70">#Exam_Ready_2025</span>
           </div>
-          <div class="text-[10px] text-slate-500 bg-slate-900/80 px-3 py-1 rounded-full border border-white/5">
-            点击返回正面
+          <div class="text-[9px] text-slate-400 bg-slate-800/80 px-3 py-1 rounded-full border border-white/5 hover:bg-slate-700 transition-colors">
+            点击返回
           </div>
         </div>
       </div>
@@ -79,6 +88,7 @@ defineProps<{
 
 const isFlipped = ref(false)
 
+// 暴露重置方法
 defineExpose({
   reset: () => isFlipped.value = false
 })
@@ -106,36 +116,64 @@ defineExpose({
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .card-back {
   transform: rotateY(180deg);
 }
 
-/* 彻底解决暗色模式下背景突兀的问题 */
-:deep(.md-editor-preview) {
-  padding: 0 !important;
+/* --- 样式注入：解决正面看不清的问题 --- */
+:deep(.md-preview-light .md-editor-preview) {
+  color: #1e293b !important; /* 强制深色 slate-800 */
+  font-size: 1.05rem;
+  line-height: 1.8;
   background-color: transparent !important;
-  color: #f8fafc !important; /* 强制极浅灰色文字，提高对比度 */
 }
 
+:deep(.md-preview-light .md-editor-preview p),
+:deep(.md-preview-light .md-editor-preview li),
+:deep(.md-preview-light .md-editor-preview strong) {
+  color: #1e293b !important;
+}
+
+/* --- 样式注入：解决背面对比度问题 --- */
+:deep(.md-preview-dark .md-editor-preview) {
+  color: #f1f5f9 !important; /* 强制浅白 slate-100 */
+  font-size: 1.1rem;
+  line-height: 1.75;
+  background-color: transparent !important;
+}
+
+:deep(.md-preview-dark .md-editor-preview p),
+:deep(.md-preview-dark .md-editor-preview li) {
+  color: #f1f5f9 !important;
+}
+
+/* 统一隐藏预览器的默认 Padding */
 :deep(.md-editor-preview-wrapper) {
   padding: 0 !important;
 }
 
-/* Markdown 内部排版优化 */
-:deep(.prose-invert p) {
-  color: #f1f5f9 !important;
-  font-size: 1.125rem; /* 增大字号 */
-  line-height: 1.75;
+/* 自定义滚动条样式 */
+.custom-content::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-content::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
 }
 
-/* 自定义滚动条 */
 .custom-content-dark::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 .custom-content-dark::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 10px;
+}
+
+/* CPA 公式样式轻微优化 */
+:deep(.katex) {
+  font-size: 1.1em;
 }
 </style>

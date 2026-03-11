@@ -4,7 +4,7 @@ import { useUserStore } from '../store/userStore';
 
 const api = axios.create({
   // Rust 后端地址
-  baseURL: 'http://localhost:3000/api',
+  baseURL: import.meta.env.PROD ? '/api' : 'http://localhost:3000/api',
   timeout: 5000,
 });
 

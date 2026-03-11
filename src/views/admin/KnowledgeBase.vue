@@ -5,7 +5,7 @@
     <div 
       :class="[
         'bg-slate-900 text-white flex flex-col shadow-xl transition-all duration-300 ease-in-out relative',
-        isCollapsed ? 'w-16' : 'w-64'
+        isCollapsed ? 'w-20' : 'w-64'
       ]"
     >
       <!-- 顶部控制区 -->
@@ -19,7 +19,6 @@
           <h1 class="font-black text-sm tracking-widest uppercase">返回首页</h1>
         </div>
         
-        <!-- 折叠切换按钮 (展开时在右侧，折叠时在中间) -->
         <el-button 
           link 
           :icon="isCollapsed ? Expand : Fold" 
@@ -28,11 +27,11 @@
         />
       </div>
 
-      <!-- 新增按钮 (折叠时简化) -->
+      <!-- 新增按钮 -->
       <div class="p-3">
         <el-button 
           type="primary" 
-          :class="['w-full transition-all overflow-hidden', isCollapsed ? 'px-0' : '']"
+          :class="['w-full transition-all overflow-hidden border-none bg-indigo-600 hover:bg-indigo-500', isCollapsed ? 'px-0' : '']"
           @click="openSubjectCreator"
         >
           <el-icon><Plus /></el-icon>
@@ -40,7 +39,7 @@
         </el-button>
       </div>
 
-      <!-- 中间：科目列表内容 -->
+      <!-- 中间：科目列表 -->
       <div class="flex-1 overflow-y-auto py-2 custom-scrollbar overflow-x-hidden">
         <div 
           v-for="sub in subjects" :key="sub.id"
@@ -87,15 +86,15 @@
       </div>
     </div>
 
-    <!-- 2. 中间：目录大纲 (章节) -->
+    <!-- 2. 中间：目录结构 (章节) -->
     <div class="w-80 bg-white border-r flex flex-col shadow-sm">
       <div class="p-5 border-b flex justify-between items-center bg-gray-50/50">
         <span class="font-bold text-gray-600 flex items-center gap-2">
           <el-icon><Fold /></el-icon> 目录大纲
         </span>
-        <el-button v-if="appStore.currentSubjectId" link :icon="Plus" @click="prepareAddCategory(null)">主分类</el-button>
+        <el-button v-if="appStore.currentSubjectId" link :icon="Plus" @click="prepareAddCategory(null)">主目录</el-button>
       </div>
-      <div class="flex-1 overflow-y-auto p-2">
+      <div class="flex-1 overflow-y-auto p-2 custom-scrollbar">
         <el-tree
           v-if="appStore.currentSubjectId"
           :data="categoryTree"
@@ -121,31 +120,31 @@
             </div>
           </template>
         </el-tree>
-        <div v-else class="h-full flex flex-col items-center justify-center text-gray-400 text-xs px-10 text-center space-y-3">
-          <el-icon :size="32" class="opacity-20"><Files /></el-icon>
+        <div v-else class="h-full flex flex-col items-center justify-center text-gray-400 text-xs px-10 text-center space-y-3 opacity-60">
+          <el-icon :size="32"><Files /></el-icon>
           <p>请选择左侧科目</p>
         </div>
       </div>
     </div>
 
-    <!-- 3. 右侧：内容管理区 (卡片) -->
+    <!-- 3. 右侧：卡片列表区 -->
     <div class="flex-1 flex flex-col bg-gray-50 overflow-hidden">
       <header v-if="currentCategoryId" class="bg-white p-6 border-b flex justify-between items-center shadow-sm relative z-10">
         <div>
           <div class="flex items-center gap-2">
             <h2 class="text-xl font-bold text-gray-800">{{ currentCategoryName }}</h2>
-            <el-tag size="small" effect="plain" round>{{ cards.length }} 卡片</el-tag>
+            <el-tag size="small" effect="plain" round class="bg-indigo-50 border-indigo-100 text-indigo-600">{{ cards.length }} 卡片</el-tag>
           </div>
-          <p class="text-xs text-gray-400 mt-1">组织与优化该节点的知识精华</p>
+          <p class="text-xs text-gray-400 mt-1">管理并组织该节点的知识碎片</p>
         </div>
         <div class="flex gap-3">
           <el-button type="info" plain :icon="Printer" @click="router.push('/print')">导出讲义</el-button>
-          <el-button type="success" :icon="Postcard" @click="goToStudy">复习模式</el-button>
-          <el-button type="primary" :icon="Plus" @click="openCardEditor">新建卡片</el-button>
+          <el-button type="success" :icon="Postcard" class="bg-green-600 border-none hover:bg-green-500" @click="goToStudy">复习模式</el-button>
+          <el-button type="primary" :icon="Plus" class="bg-indigo-600 border-none hover:bg-indigo-500" @click="openCardEditor">新建卡片</el-button>
         </div>
       </header>
 
-      <main class="flex-1 overflow-y-auto p-6">
+      <main class="flex-1 overflow-y-auto p-6 custom-scrollbar">
         <div v-if="currentCategoryId">
           <div v-if="cards.length > 0" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             <el-card 
@@ -158,7 +157,7 @@
                 <div class="flex justify-between items-center">
                   <div class="flex items-center gap-2 truncate">
                     <el-icon v-if="card.card_type === 'code'" class="text-orange-500"><Monitor /></el-icon>
-                    <el-icon v-else-if="card.card_type === 'note'" class="text-blue-500"><Memo /></el-icon>
+                    <el-icon v-else class="text-blue-500"><Memo /></el-icon>
                     <span class="font-bold truncate text-gray-700">{{ card.title }}</span>
                   </div>
                   <div class="flex items-center gap-2">
@@ -179,14 +178,14 @@
               </div>
               <div class="mt-4 pt-4 border-t flex justify-between items-center">
                 <el-rate :model-value="card.difficulty" disabled size="small" />
-                <span class="text-[10px] text-gray-400 font-mono tracking-tighter uppercase">Next: {{ card.next_review_date || 'New' }}</span>
+                <span class="text-[10px] text-gray-400 font-mono tracking-tighter">NEXT: {{ card.next_review_date || 'New' }}</span>
               </div>
             </el-card>
           </div>
           <div v-else class="h-64 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl bg-white">
             <el-icon class="text-gray-200" :size="48"><Postcard /></el-icon>
-            <p class="text-gray-400 mt-4 font-medium">该目录下还没有知识记录</p>
-            <el-button type="primary" link class="mt-2" @click="openCardEditor">立即创建第一张卡片</el-button>
+            <p class="text-gray-400 mt-4 font-medium">还没有任何知识记录</p>
+            <el-button type="primary" link class="mt-2 text-indigo-600" @click="openCardEditor">立即创建第一张卡片</el-button>
           </div>
         </div>
         <div v-else class="h-full flex flex-col items-center justify-center text-gray-400 animate-pulse space-y-4">
@@ -196,85 +195,87 @@
       </main>
     </div>
 
-    <!-- 弹窗部分保持不变 -->
+    <!-- 弹窗：新建知识空间 -->
     <el-dialog v-model="showAddSubject" title="知识空间管理" width="450px" destroy-on-close>
       <el-form :model="subjectForm" label-position="top">
-        <el-form-item label="名称" required>
-          <el-input v-model="subjectForm.name" placeholder="如：CPA 会计精华" />
+        <el-form-item label="空间名称" required>
+          <el-input v-model="subjectForm.name" placeholder="如：CPA 经济法" />
         </el-form-item>
         <div class="grid grid-cols-2 gap-4">
-          <el-form-item label="图标">
+          <el-form-item label="视觉图标">
             <el-select v-model="subjectForm.icon_type">
               <el-option v-for="(_, key) in iconMap" :key="key" :label="key" :value="key" />
             </el-select>
           </el-form-item>
-          <el-form-item label="可见性">
+          <el-form-item label="可见权限">
             <el-select v-model="subjectForm.visibility">
-              <el-option label="私有" value="private" />
-              <el-option label="公开" value="public" />
+              <el-option label="仅自己可见" value="private" />
+              <el-option label="公开分享" value="public" />
             </el-select>
           </el-form-item>
         </div>
-        <el-form-item label="主题色">
+        <el-form-item label="品牌色">
           <el-color-picker v-model="subjectForm.theme_color" />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showAddSubject = false">取消</el-button>
-        <el-button type="primary" @click="handleSaveSubject">保存空间</el-button>
+        <el-button type="primary" class="bg-indigo-600 border-none" @click="handleSaveSubject">确认创建</el-button>
       </template>
     </el-dialog>
 
-    <el-dialog v-model="showAddCategory" title="目录节点管理" width="400px">
+    <!-- 弹窗：新增目录 -->
+    <el-dialog v-model="showAddCategory" title="目录结构管理" width="400px">
       <el-form :model="categoryForm" label-position="top">
-        <el-form-item label="标题" required>
+        <el-form-item label="节点名称" required>
           <el-input v-model="categoryForm.name" placeholder="输入目录名称" />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showAddCategory = false">取消</el-button>
-        <el-button type="primary" @click="handleSaveCategory">确认</el-button>
+        <el-button type="primary" class="bg-indigo-600 border-none" @click="handleSaveCategory">确认添加</el-button>
       </template>
     </el-dialog>
 
-    <el-dialog v-model="showCardEditor" :title="editingCardId ? '编辑知识节点' : '新建知识卡片'" width="85%" top="5vh" destroy-on-close>
+    <!-- 弹窗：知识卡片编辑器 (核心修复点) -->
+    <el-dialog v-model="showCardEditor" :title="editingCardId ? '更新知识节点' : '录入新知识点'" width="85%" top="5vh" destroy-on-close>
       <el-form :model="cardForm" label-position="top">
         <div class="grid grid-cols-12 gap-8">
           <div class="col-span-8 space-y-6">
             <el-form-item label="节点标题" required>
               <el-input v-model="cardForm.title" placeholder="输入知识点名称" size="large" />
             </el-form-item>
-            <el-form-item label="正面内容">
+            <el-form-item label="正面：核心内容 / 问题">
               <MdEditor v-model="cardForm.essence" height="300px" />
             </el-form-item>
-            <el-form-item label="背面解析">
+            <el-form-item label="背面：详细解析 / 深度笔记">
               <MdEditor v-model="cardForm.insights" height="200px" />
             </el-form-item>
           </div>
           <div class="col-span-4 bg-gray-50 p-6 rounded-xl space-y-8 border border-gray-100">
-            <el-form-item label="卡片类型">
+            <el-form-item label="内容类型">
                <el-radio-group v-model="cardForm.card_type" fill="#4f46e5">
                 <el-radio-button value="qa">问答</el-radio-button>
                 <el-radio-button value="note">笔记</el-radio-button>
                 <el-radio-button value="code">代码</el-radio-button>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="熟悉程度">
-              <el-rate v-model="cardForm.difficulty" :texts="['陌生', '入门', '中等', '熟练', '精通']" show-text />
+            <el-form-item label="熟悉程度 (难度)">
+              <el-rate v-model="cardForm.difficulty" :texts="['完全陌生', '初窥门径', '掌握一般', '基本精通', '完美掌握']" show-text />
             </el-form-item>
-            <el-form-item label="重要程度">
+            <el-form-item label="考试重要程度">
               <el-radio-group v-model="cardForm.importance">
                 <el-radio-button value="A">核心</el-radio-button>
                 <el-radio-button value="B">常用</el-radio-button>
                 <el-radio-button value="C">边缘</el-radio-button>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="复习间隔 (天)">
+            <el-form-item label="初次复习间隔 (天)">
               <el-input-number v-model="cardForm.interval_days" :min="1" />
             </el-form-item>
             <div class="pt-10">
-               <el-button type="primary" size="large" class="w-full shadow-lg" @click="handleSaveCard">
-                 {{ editingCardId ? '更新并保存' : '保存新节点' }}
+               <el-button type="primary" size="large" class="w-full shadow-lg bg-indigo-600 border-none" @click="handleSaveCard">
+                 {{ editingCardId ? '更新并同步' : '确认保存' }}
                </el-button>
                <el-button size="large" class="w-full mt-4" @click="showCardEditor = false">取消</el-button>
             </div>
@@ -307,9 +308,7 @@ const appStore = useAppStore()
 const userStore = useUserStore()
 
 // --- 状态控制 ---
-const isCollapsed = ref(false) // 核心：侧边栏折叠状态
-
-// 图标映射
+const isCollapsed = ref(false)
 const iconMap: any = { Book: Reading, Code: Monitor, Life: Coffee, Core: Key, Growth: Opportunity, Collection: Collection }
 
 // 基础数据
@@ -331,18 +330,19 @@ const subjectForm = ref({ name: '', description: '', theme_color: '#6366f1', ico
 const categoryForm = ref({ name: '', parent_id: null as number | null })
 const cardForm = ref({ title: '', essence: '', insights: '', difficulty: 3, importance: 'B', interval_days: 1, card_type: 'qa' })
 
-// --- 数据加载与方法 ---
+// --- 数据加载 ---
 const loadSubjects = async () => {
   try {
     const res = await subjectApi.list()
     subjects.value = res as any
-  } catch (error) {
-    console.error('加载科目失败', error)
+  } catch (err) {
+    console.error('Failed to load subjects')
   }
 }
 
 onMounted(() => loadSubjects())
 
+// --- 科目操作 ---
 const selectSubject = async (sub: Subject) => {
   appStore.setSubject(sub.id, sub.name, sub.theme_color)
   currentCategoryId.value = null
@@ -357,16 +357,16 @@ const openSubjectCreator = () => {
 }
 
 const handleSaveSubject = async () => {
-  if (!subjectForm.value.name) return
+  if (!subjectForm.value.name.trim()) return
   await subjectApi.create(subjectForm.value)
-  ElMessage.success('知识空间已创建')
+  ElMessage.success('科目已创建')
   showAddSubject.value = false
   loadSubjects()
 }
 
 const handleDeleteSubject = async (id: number) => {
   try {
-    await ElMessageBox.confirm('删除该科目将连带清空旗下所有章节与卡片！确定吗？', '严峻警告', { type: 'error' })
+    await ElMessageBox.confirm('删除该科目将清空旗下所有章节与卡片！确定吗？', '严峻警告', { type: 'error' })
     await subjectApi.delete(id)
     ElMessage.success('科目已移除')
     if (appStore.currentSubjectId === id) appStore.currentSubjectId = null
@@ -374,6 +374,7 @@ const handleDeleteSubject = async (id: number) => {
   } catch {}
 }
 
+// --- 目录操作 ---
 const categoryTree = computed(() => {
   const map: any = {}
   const tree: any[] = []
@@ -407,9 +408,9 @@ const prepareAddCategory = (parentId: number | null) => {
 }
 
 const handleSaveCategory = async () => {
-  if (!appStore.currentSubjectId || !categoryForm.value.name) return
+  if (!appStore.currentSubjectId || !categoryForm.value.name.trim()) return
   await categoryApi.create({ ...categoryForm.value, subject_id: appStore.currentSubjectId })
-  ElMessage.success('目录结构已更新')
+  ElMessage.success('目录已更新')
   showAddCategory.value = false
   const res = await categoryApi.listBySubject(appStore.currentSubjectId)
   categories.value = res as any
@@ -427,6 +428,7 @@ const handleDeleteCategory = async (id: number) => {
   } catch {}
 }
 
+// --- 卡片核心操作 ---
 const openCardEditor = () => {
   editingCardId.value = null
   cardForm.value = { title: '', essence: '', insights: '', difficulty: 3, importance: 'B', interval_days: 1, card_type: 'qa' }
@@ -436,23 +438,43 @@ const openCardEditor = () => {
 const handleEditCard = (card: Card) => {
   editingCardId.value = card.id!
   cardForm.value = { 
-    title: card.title, essence: card.essence || '', insights: card.insights || '', 
-    difficulty: card.difficulty, importance: card.importance, interval_days: card.interval_days, card_type: card.card_type || 'qa'
+    title: card.title, 
+    essence: card.essence || '', 
+    insights: card.insights || '', 
+    difficulty: card.difficulty || 3, 
+    importance: card.importance || 'B', 
+    interval_days: card.interval_days || 1, 
+    card_type: card.card_type || 'qa'
   }
   showCardEditor.value = true
 }
 
 const handleSaveCard = async () => {
-  if (!cardForm.value.title || !currentCategoryId.value) return
-  if (editingCardId.value) {
-    await cardApi.update(editingCardId.value, cardForm.value)
-    ElMessage.success('知识节点已同步')
-  } else {
-    await cardApi.create({ ...cardForm.value, category_id: currentCategoryId.value })
-    ElMessage.success('新知识点已录入')
+  // 基础校验
+  if (!cardForm.value.title.trim() || !currentCategoryId.value) {
+    ElMessage.warning('标题和所属章节不能为空');
+    return;
   }
-  showCardEditor.value = false
-  loadCards()
+
+  // 关键：构造符合后端 DTO 要求的提交对象，解决 422 校验错误
+  const submitData = {
+    ...cardForm.value,
+    category_id: currentCategoryId.value
+  };
+
+  try {
+    if (editingCardId.value) {
+      await cardApi.update(editingCardId.value, submitData)
+      ElMessage.success('知识节点已同步更新')
+    } else {
+      await cardApi.create(submitData)
+      ElMessage.success('新知识点已录入')
+    }
+    showCardEditor.value = false
+    loadCards()
+  } catch (err) {
+    console.error('Submission failed', err)
+  }
 }
 
 const handleDeleteCard = async (id: number) => {
@@ -464,11 +486,12 @@ const handleDeleteCard = async (id: number) => {
   } catch {}
 }
 
+// --- 系统逻辑 ---
 const handleLogout = () => {
   ElMessageBox.confirm('确定要退出 Polymath 系统吗？', '注销', { type: 'warning' }).then(() => {
     userStore.logout()
     router.push('/login')
-    ElMessage.info('已退出登录')
+    ElMessage.info('已安全登出')
   }).catch(() => {})
 }
 
@@ -480,7 +503,7 @@ const goToStudy = () => {
 
 <style scoped>
 :deep(.el-tree-node__content) {
-  height: 40px;
+  height: 44px;
   border-radius: 8px;
   margin: 4px 0;
   transition: all 0.2s;
@@ -491,7 +514,7 @@ const goToStudy = () => {
   font-weight: 600;
 }
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #334155;
